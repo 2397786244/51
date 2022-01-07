@@ -1,0 +1,109 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        01/07/2022  20:09:28  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL5\C51\BIN\BL51.EXE .\Objects\project_2.obj TO .\Objects\led_2 PRINT (.\Listings\led_2.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\project_2.obj (PROJECT_2)
+  D:\KEIL5\C51\LIB\C51S.LIB (?C_STARTUP)
+
+
+LINK MAP OF MODULE:  .\Objects\led_2 (PROJECT_2)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            IDATA   0008H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0051H     UNIT         ?PR?MAIN?PROJECT_2
+            CODE    0054H     0027H     UNIT         ?PR?_DELAY?PROJECT_2
+            CODE    007BH     000CH     UNIT         ?C_C51STARTUP
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\led_2 (PROJECT_2)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?PROJECT_2
+
+?PR?MAIN?PROJECT_2
+  +--> ?PR?_DELAY?PROJECT_2
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\led_2 (PROJECT_2)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        PROJECT_2
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00A8H         PUBLIC        IE
+  C:005BH         PUBLIC        _delay
+  D:00B8H         PUBLIC        IP
+  B:00A0H.3       PUBLIC        beep
+BL51 BANKED LINKER/LOCATER V6.22                                                      01/07/2022  20:09:28  PAGE 2
+
+
+  C:0003H         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  D:00C8H         PUBLIC        T2CON
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          L?0023
+  -------         ENDPROC       L?0023
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        n
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0002H         SYMBOL        j
+  -------         ENDDO         
+  C:005BH         LINE#         12
+  C:005BH         LINE#         14
+  C:0065H         LINE#         15
+  C:0065H         LINE#         16
+  C:0073H         LINE#         17
+  C:007AH         LINE#         18
+  -------         ENDPROC       _DELAY
+  -------         PROC          MAIN
+  -------         DO            
+  D:0082H         SYMBOL        i
+  -------         ENDDO         
+  C:0003H         LINE#         20
+  C:0003H         LINE#         23
+  C:0003H         LINE#         24
+  C:0003H         LINE#         25
+  C:000AH         LINE#         26
+  C:000DH         LINE#         27
+  C:000DH         LINE#         28
+  C:000FH         LINE#         29
+  C:001CH         LINE#         30
+  C:001FH         LINE#         31
+  C:0028H         LINE#         32
+  C:002FH         LINE#         34
+  C:003FH         LINE#         35
+  C:0041H         LINE#         36
+  C:004EH         LINE#         37
+  C:0051H         LINE#         38
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        PROJECT_2
+
+Program Size: data=9.0 xdata=0 code=135
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)
