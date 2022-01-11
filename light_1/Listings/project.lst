@@ -1,0 +1,93 @@
+C51 COMPILER V9.54   PROJECT                                                               01/11/2022 14:57:10 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE PROJECT
+OBJECT MODULE PLACED IN .\Objects\project.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE project.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\pro
+                    -ject.lst) OBJECT(.\Objects\project.obj)
+
+line level    source
+
+   1          /**
+   2          *数码管静态显示\动态显示
+   3          **/
+   4          #include <reg52.h>
+   5          #include <intrins.h>
+   6          
+   7          typedef unsigned int uint;
+   8          typedef unsigned char uchar;
+   9          
+  10          sbit DU = P2^6; //数码管段选 LE口。1的时候输出端随输入端变化。位选锁存器同理
+  11          sbit WE = P2^7; //数码管位选
+  12          
+  13          void delay(uint n)
+  14                  {
+  15   1              int i,j;
+  16   1              for(i=0;i<n;i++)
+  17   1                      {
+  18   2                      for(j=0;j<114;j++);
+  19   2                      }
+  20   1              }
+  21          void main(){
+  22   1              
+  23   1              /*WE= 1; //打开位选锁存器
+  24   1              P0 = 0xFE;  //1111 1110 选择第一个数码管打开
+  25   1              WE = 0; //关闭位选锁存器 
+  26   1              
+  27   1              DU = 1;
+  28   1              P0 = 0x06;
+  29   1              DU = 0;*/
+  30   1              //控制段选。段选要求高电平，点亮该段数码管。 
+  31   1              //段选锁存器关闭
+  32   1              while(1){
+  33   2                      
+  34   2                      P0 = 0xFF; //清除断码
+  35   2                      WE = 1;
+  36   2                      P0 = 0xFE;      //第一个管子
+  37   2                      WE = 0;
+  38   2                      
+  39   2                      DU = 1;
+  40   2                      P0 = 0x06;
+  41   2                      DU = 0; //显示1
+  42   2                      
+  43   2                      delay(10);
+  44   2                      
+  45   2                      P0 = 0xFF;      //清除断码      
+  46   2                      WE = 1;
+  47   2                      P0 = 0XFD; //选择第二个管子
+  48   2                      WE = 0;
+  49   2                      
+  50   2                      DU = 1;
+  51   2                      P0 = 0x5B; //点亮一个2的数字
+  52   2                      DU = 0;
+  53   2                      delay(3);
+  54   2                      
+C51 COMPILER V9.54   PROJECT                                                               01/11/2022 14:57:10 PAGE 2   
+
+  55   2                      //在第三个管子上显示3
+  56   2                      P0 = 0XFF;
+  57   2                      WE = 1;
+  58   2                      P0 = 0XFB;
+  59   2                      WE = 0; //1111 1011
+  60   2                      
+  61   2                      DU = 1;
+  62   2                      P0 = 0x4F; //显示3，打开 abcdg 0100 1111
+  63   2                      DU = 0;
+  64   2                      delay(3);
+  65   2              }
+  66   1      
+  67   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    100    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
