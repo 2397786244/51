@@ -1,0 +1,69 @@
+C51 COMPILER V9.54   PROJECT                                                               01/11/2022 17:26:28 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE PROJECT
+OBJECT MODULE PLACED IN .\Objects\project.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE project.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\pro
+                    -ject.lst) OBJECT(.\Objects\project.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          
+   3          
+   4          sbit DU = P2^6;  //p2.6
+   5          sbit WE = P2^7;  //控制位选 
+   6          typedef unsigned char uchar;
+   7          void display(unsigned int n,unsigned int);
+   8          void delay(unsigned int n){
+   9   1              int i;
+  10   1              int j;
+  11   1              for(i=0;i<n;i++){
+  12   2                      for(j=0;j<144;j++);
+  13   2              }
+  14   1      }
+  15          void main(){
+  16   1              //数组存放5种段选锁存器P0赋的值
+  17   1              unsigned int num_ch[5]={0x06,0x5b,0x4f,0x66,0x6d};
+  18   1              //num_ch[0] 打印1，[1]是数字2，[2]是数字3，[3]是数字4 [4]是数字5
+  19   1              int i;
+  20   1              while(1){
+  21   2              for(i=0;i<5;i++){
+  22   3                      display(num_ch[i],~(0x01<<i));  //数字1在第一个数码管上。即位选P0 = ~(0x01)；
+  23   3              }
+  24   2              }
+  25   1      }
+  26          
+  27          void display(unsigned int n,unsigned int bits){
+  28   1                      /*用p0=0xff清除断码。先打开位选，亮第一个数码管。关闭位选锁存器。中间有几微秒的延时。
+  29   1                      打开段选，点亮数字1的样式。延时。
+  30   1                      */
+  31   1                      P0 = 0xFF;
+  32   1                      WE = 1;
+  33   1                      P0 = bits;
+  34   1                      WE = 0;
+  35   1                      
+  36   1                      //延时
+  37   1                      P0 = 0xFF;
+  38   1      
+  39   1                      DU = 1;
+  40   1                      P0 = n; //一开始显示数字1
+  41   1                      DU = 0;
+  42   1                      delay(2);
+  43   1      }       
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    147    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      12
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+C51 COMPILER V9.54   PROJECT                                                               01/11/2022 17:26:28 PAGE 2   
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
