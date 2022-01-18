@@ -1,0 +1,102 @@
+C51 COMPILER V9.54   BUTTON                                                                01/18/2022 14:49:43 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE BUTTON
+OBJECT MODULE PLACED IN .\Objects\button.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE button.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\butt
+                    -on.lst) OBJECT(.\Objects\button.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          
+   3          typedef unsigned char uchar;
+   4          typedef unsigned int uint;
+   5          
+   6          uchar code tabel[10]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f}; //0-9
+   7          
+   8          sbit WE = P2^7;
+   9          sbit DU = P2^6;
+  10          
+  11          int value=0;
+  12          
+  13          void delay(uint n){
+  14   1              uint i,j;
+  15   1              for(i=0;i<n;i++){
+  16   2                      for(j=0;j<114;j++);
+  17   2              }
+  18   1      }
+  19          //延时函数
+  20          //键盘扫描
+  21          void keyscan()
+  22          {
+  23   1              //矩阵键盘扫描
+  24   1              P3 = 0xF0;
+  25   1              if(P3 != 0xF0)
+  26   1              {
+  27   2                      delay(10); //软件消抖
+  28   2                      if(P3!=0xF0) //进行列扫描
+  29   2                      {
+  30   3                              switch(P3)
+  31   3                                      { //判断是哪一种情况
+  32   4                                      case 0XE0: value = 0;break;
+  33   4                                      case 0XD0: value = 1;break;
+  34   4                                      case 0XB0: value = 2;break;
+  35   4                                      case 0X70: value = 3;break;
+  36   4                                      }
+  37   3                      P3 = 0x0F; //行扫描
+  38   3                      switch(P3)
+  39   3                              {
+  40   4                              case 0X0E: value += 0;break;
+  41   4                              case 0X0D: value += 4;break;
+  42   4                              case 0X0B: value += 8;break;
+  43   4                              case 0X07: value += 12;break;
+  44   4                              }
+  45   3                      while(P3 != 0X0F); //松手检测。松手前P3肯定不是0x0f;                    
+  46   3                      }       
+  47   2              }
+  48   1              //下面可以是独立键盘的扫描
+  49   1              P3 = 0xFF; //给IO口都给高电平。
+  50   1              if(P3!=0xFF)
+  51   1              {
+  52   2                      //有按键按下
+  53   2                      switch(P3)
+  54   2                      {
+C51 COMPILER V9.54   BUTTON                                                                01/18/2022 14:49:43 PAGE 2   
+
+  55   3                              case 0xFE: value = 0; break;
+  56   3                              case 0xFD: value = 1; break;
+  57   3                              case 0xFB: value = 2; break;
+  58   3                              case 0xF7: value = 3; break;
+  59   3                      }
+  60   2                      while(P3 != 0xFF); //松手检测。
+  61   2              }
+  62   1      }
+  63          void main(){
+  64   1              WE = 1;
+  65   1              P0 = 0xFE;
+  66   1              WE = 0;
+  67   1              while(1)
+  68   1              {
+  69   2                      keyscan();
+  70   2                      
+  71   2                      DU = 1;
+  72   2                      P0 = tabel[value];
+  73   2                      DU = 0;
+  74   2                      
+  75   2              }
+  76   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    240    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

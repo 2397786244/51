@@ -1,0 +1,157 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        01/18/2022  14:49:43  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL5\C51\BIN\BL51.EXE .\Objects\button.obj TO .\Objects\mat_button PRINT (.\Listings\mat_button.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\button.obj (BUTTON)
+  D:\KEIL5\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL5\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  .\Objects\mat_button (BUTTON)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0002H     UNIT         ?DT?BUTTON
+            IDATA   000AH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     00B0H     UNIT         ?PR?KEYSCAN?BUTTON
+            CODE    00B3H     008CH     UNIT         ?C_C51STARTUP
+            CODE    013FH     0020H     UNIT         ?PR?_DELAY?BUTTON
+            CODE    015FH     0020H     UNIT         ?PR?MAIN?BUTTON
+            CODE    017FH     000AH     UNIT         ?CO?BUTTON
+            CODE    0189H     0005H     UNIT         ?C_INITSEG
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\mat_button (BUTTON)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?BUTTON
+  +--> ?C_INITSEG
+
+?PR?MAIN?BUTTON
+  +--> ?PR?KEYSCAN?BUTTON
+  +--> ?CO?BUTTON
+
+?PR?KEYSCAN?BUTTON
+  +--> ?PR?_DELAY?BUTTON
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\mat_button (BUTTON)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+BL51 BANKED LINKER/LOCATER V6.22                                                      01/18/2022  14:49:43  PAGE 2
+
+
+
+  -------         MODULE        BUTTON
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  C:017FH         PUBLIC        tabel
+  D:00A8H         PUBLIC        IE
+  C:013FH         PUBLIC        _delay
+  B:00A0H.6       PUBLIC        DU
+  D:00B8H         PUBLIC        IP
+  B:00A0H.7       PUBLIC        WE
+  D:0008H         PUBLIC        value
+  C:015FH         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  D:00C8H         PUBLIC        T2CON
+  C:0003H         PUBLIC        keyscan
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        n
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0002H         SYMBOL        j
+  -------         ENDDO         
+  C:013FH         LINE#         13
+  C:013FH         LINE#         15
+  C:0149H         LINE#         16
+  C:0157H         LINE#         17
+  C:015EH         LINE#         18
+  -------         ENDPROC       _DELAY
+  -------         PROC          KEYSCAN
+  C:0003H         LINE#         21
+  C:0003H         LINE#         22
+  C:0003H         LINE#         24
+  C:0006H         LINE#         25
+  C:000CH         LINE#         26
+  C:000CH         LINE#         27
+  C:0013H         LINE#         28
+  C:0019H         LINE#         29
+  C:0019H         LINE#         30
+  C:002CH         LINE#         31
+  C:002CH         LINE#         32
+  C:0033H         LINE#         33
+  C:003BH         LINE#         34
+  C:0043H         LINE#         35
+  C:0049H         LINE#         36
+  C:0049H         LINE#         37
+  C:004CH         LINE#         38
+  C:005CH         LINE#         39
+  C:005CH         LINE#         40
+  C:005EH         LINE#         41
+  C:0062H         LINE#         42
+  C:0066H         LINE#         43
+  C:0071H         LINE#         44
+  C:0071H         LINE#         45
+BL51 BANKED LINKER/LOCATER V6.22                                                      01/18/2022  14:49:43  PAGE 3
+
+
+  C:0076H         LINE#         46
+  C:0076H         LINE#         47
+  C:0076H         LINE#         49
+  C:0079H         LINE#         50
+  C:007EH         LINE#         51
+  C:007EH         LINE#         53
+  C:0090H         LINE#         54
+  C:0090H         LINE#         55
+  C:0097H         LINE#         56
+  C:009FH         LINE#         57
+  C:00A7H         LINE#         58
+  C:00ADH         LINE#         59
+  C:00ADH         LINE#         60
+  C:00B2H         LINE#         61
+  C:00B2H         LINE#         62
+  -------         ENDPROC       KEYSCAN
+  -------         PROC          MAIN
+  C:015FH         LINE#         63
+  C:015FH         LINE#         64
+  C:0161H         LINE#         65
+  C:0164H         LINE#         66
+  C:0166H         LINE#         67
+  C:0166H         LINE#         68
+  C:0166H         LINE#         69
+  C:0169H         LINE#         71
+  C:016BH         LINE#         72
+  C:017BH         LINE#         73
+  C:017DH         LINE#         75
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        BUTTON
+
+Program Size: data=11.0 xdata=0 code=398
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)
