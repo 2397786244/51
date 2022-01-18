@@ -1,0 +1,179 @@
+C51 COMPILER V9.54   CALC                                                                  01/18/2022 23:00:44 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE CALC
+OBJECT MODULE PLACED IN .\Objects\calc.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE calc.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\calc.l
+                    -st) OBJECT(.\Objects\calc.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          
+   3          typedef unsigned int uint;
+   4          typedef unsigned char uchar;
+   5          
+   6          void delay(uint n);
+   7          void keyscan();
+   8          void display(uint n);
+   9          int transform(uint n);
+  10          int calcc(uint n1,uint n2,uint type);
+  11          
+  12          //数码管位选、段选
+  13          sbit WE = P2^7;
+  14          sbit DU = P2^6;
+  15          
+  16          //LED灯
+  17          sbit led = P1^0;
+  18          
+  19          //按下按键的值。
+  20          uint value; //0-数字1，1-数字2，2-数字3，4-数字4，5-数字5，6-数字6，8-数字7，
+  21          //9-数字8，10-数字9，13-数字0，14- =号。+-3 - - 7, * - 11, 整除 15
+  22          //按下其他没有作用的按键，led亮2秒。除数为0，灯亮1秒。
+  23          
+  24          uchar calc; //运算符号
+  25          uint table[10] = {0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
+  26          //代表数字0-9 
+  27          
+  28          void delay(uint n){
+  29   1              int i,j;
+  30   1              for(i=0;i<n;i++){
+  31   2                      for(j=0;j<114;j++);
+  32   2              }
+  33   1      }
+  34          void keyscan(){
+  35   1              P3 = 0xf0; //列扫描 
+  36   1              if(P3 != 0xf0)
+  37   1              {
+  38   2                      //说明按下了一个按键。
+  39   2                      delay(10);//软件消抖
+  40   2                      if(P3!=0xf0)
+  41   2                      {
+  42   3                              switch(P3)
+  43   3                                      {
+  44   4                                      case 0xe0 : value = 0;break;
+  45   4                                      case 0xd0 : value = 1;break;
+  46   4                                      case 0xb0 : value = 2;break;
+  47   4                                      case 0x70 : value = 3;break;
+  48   4                                      }//按键按下的四种情况   
+  49   3                              P3 = 0x0f;
+  50   3                              //行扫描
+  51   3                              switch(P3){
+  52   4                                      case 0x0e : value += 0;break;
+  53   4                                      case 0x0d : value += 4;break;
+  54   4                                      case 0x0b : value += 8;break;
+C51 COMPILER V9.54   CALC                                                                  01/18/2022 23:00:44 PAGE 2   
+
+  55   4                                      case 0x07 : value += 12;break;
+  56   4                              }
+  57   3                              while(P3!=0x0f); //松手检测。在行检测之后
+  58   3                      }
+  59   2              }
+  60   1      }
+  61          int transform(uint n){
+  62   1              uint num=0;
+  63   1              switch(n)
+  64   1              {
+  65   2                      case 0:num=1;break;
+  66   2                      case 1:num=2;break;
+  67   2                      case 2:num=3;break;
+  68   2                      case 4:num=4;break;
+  69   2                      case 5:num=5;break;
+  70   2                      case 6:num=6;break;
+  71   2                      case 8:num=7;break;
+  72   2                      case 9:num=8;break;
+  73   2                      case 10:num=9;break;
+  74   2                      case 13:num=0;break;
+  75   2              }
+  76   1              return num;
+  77   1      }
+  78          
+  79          int calcc(uint n1,uint n2,uint type)
+  80          {
+  81   1              uint result;
+  82   1              switch(type)
+  83   1              {
+  84   2                      case 3: result = n1+n2;break; //n1+n2;
+  85   2                      case 7:
+  86   2                              result = (n1>n2) ? n1-n2 : n2-n1 ;break;
+  87   2                      case 11: result = n1*n2;break;
+  88   2                      
+  89   2                      //整除暂时不做
+  90   2              }
+  91   1              return result;
+  92   1      }
+  93          
+  94          void display(uint n)
+  95          {
+  96   1              uint shi,ge,i=0;
+  97   1              shi = n/10;
+  98   1              ge = n%10;
+  99   1              while(1)
+ 100   1              {
+ 101   2              if(shi!=0)
+ 102   2              {
+ 103   3                      P0 = 0xff;
+ 104   3                      WE = 1;
+ 105   3                      P0 = ~0x01; //第一个数码管
+ 106   3                      WE = 0;
+ 107   3                      
+ 108   3                      DU = 1;
+ 109   3                      P0 = table[shi];
+ 110   3                      DU = 0; //显示十位。
+ 111   3                      delay(10);
+ 112   3              }
+ 113   2              P0 = 0xff;
+ 114   2              WE = 1;
+ 115   2              P0 = ~0x02;
+ 116   2              WE = 0;
+C51 COMPILER V9.54   CALC                                                                  01/18/2022 23:00:44 PAGE 3   
+
+ 117   2              
+ 118   2              DU = 1;
+ 119   2              P0 = table[ge];
+ 120   2              DU = 0; //显示个位
+ 121   2              delay(10);
+ 122   2              if(n==0)break;
+ 123   2              i++;
+ 124   2              if(i==114*1000)
+ 125   2                      break;
+ 126   2              }
+ 127   1      }
+ 128          void main()
+ 129          {
+ 130   1              uint n1=0,n2=0,type;
+ 131   1              while(1)
+ 132   1              {
+ 133   2                      display(0);
+ 134   2                      //第一个数字
+ 135   2                      P3 = 0xf0;
+ 136   2                      while(P3==0xf0);
+ 137   2                      keyscan();
+ 138   2                      n1 = transform(value);
+ 139   2                      //这里要等待输入运算符
+ 140   2                      P3 = 0xf0;
+ 141   2                      while(P3==0xf0);
+ 142   2                      keyscan();
+ 143   2                      type = value;
+ 144   2                      //等待输入第二个数字
+ 145   2                      P3 = 0xf0;
+ 146   2                      while(P3==0xf0);
+ 147   2                      keyscan();
+ 148   2                      n2 = transform(value);
+ 149   2                      display(calcc(n1,n2,type));
+ 150   2              }
+ 151   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    544    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     23      16
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

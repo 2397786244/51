@@ -1,0 +1,3 @@
+".\Objects\calc.obj" 
+TO ".\Objects\calc" 
+PRINT(".\Listings\calc.m51") RAMSIZE(256) 
