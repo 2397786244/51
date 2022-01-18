@@ -1,0 +1,87 @@
+C51 COMPILER V9.54   PROJECT                                                               01/14/2022 21:17:21 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE PROJECT
+OBJECT MODULE PLACED IN .\Objects\project.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE project.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\pro
+                    -ject.lst) OBJECT(.\Objects\project.obj)
+
+line level    source
+
+   1          #include<reg52.h>
+   2          
+   3          sbit WE = P2^7;
+   4          sbit DU = P2^6;
+   5          sbit S2 = P3^0;
+   6          
+   7          unsigned int word[10] = {0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,
+   8                                  0x07,0x7f,0x6f};
+   9          void display(int num);
+  10          void delay(int n){
+  11   1              int i,j;
+  12   1              for(i=0;i<n;i++)
+  13   1              {
+  14   2              for(j=0;j<114;j++);
+  15   2              }
+  16   1      }
+  17          void main(){
+  18   1              int num=0;
+  19   1              while(1)
+  20   1              {
+  21   2                      
+  22   2                      display(num);
+  23   2                      if(!S2)
+  24   2                              {
+  25   3                              delay(10); //按键消抖
+  26   3                              if(!S2)
+  27   3                                      {
+  28   4                                      num++;
+  29   4                                      if(num==41)num=0;
+  30   4                              }
+  31   3                              while(!S2); //松手检测
+  32   3                              }
+  33   2              }
+  34   1      }
+  35          
+  36          void display(int num){
+  37   1                              
+  38   1              int ge,shi;
+  39   1                              shi = num/10;
+  40   1                              ge = num%10;
+  41   1                              //然后在数码管一二上显示这两个数
+  42   1                              P0 = 0xff;
+  43   1                              WE = 1;
+  44   1                              P0 = ~0x01;
+  45   1                              WE = 0;
+  46   1              
+  47   1                              DU = 1;
+  48   1                              P0 = word[shi];
+  49   1                              DU = 0;
+  50   1                              delay(10);
+  51   1              
+  52   1                              P0 = 0xff;
+  53   1                              WE = 1;
+  54   1                              P0 = ~0x02;
+C51 COMPILER V9.54   PROJECT                                                               01/14/2022 21:17:21 PAGE 2   
+
+  55   1                              WE = 0;
+  56   1      
+  57   1                              DU = 1;
+  58   1                              P0 = word[ge];
+  59   1                              DU = 0;
+  60   1                              delay(10);
+  61   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    177    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     20       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
