@@ -1,0 +1,120 @@
+C51 COMPILER V9.54   PROJECT                                                               01/27/2022 16:37:11 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE PROJECT
+OBJECT MODULE PLACED IN .\Objects\project.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE project.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\pro
+                    -ject.lst) OBJECT(.\Objects\project.obj)
+
+line level    source
+
+   1          /**
+   2          *@brief
+   3          * 定时器延时
+   4          * 从P1.0IO口输入P3.4口脉冲信号，使计数器增加
+   5          * 在数码管上显示数值。
+   6          ***/
+   7          #include<reg52.h>
+   8          
+   9          typedef unsigned int uint;
+  10          typedef unsigned char uchar;
+  11          uint mSec=0;
+  12          uint sec=0;
+  13          uchar ch[10] = {0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
+  14          
+  15          sbit DU = P2^6;
+  16          sbit WE = P2^7;
+  17          sbit LED1 = P1^0;
+  18          
+  19          void delay(uint n){
+  20   1              uint i,j;
+  21   1              for(i=0;i<n;i++)
+  22   1                      for(j=0;j<114;j++);
+  23   1      }
+  24          
+  25          void display(uint num){
+  26   1              uint shi;
+  27   1              uint ge;
+  28   1              shi = num / 10;
+  29   1              ge = num % 10;
+  30   1              
+  31   1              P0 = 0xff;
+  32   1              WE = 1;
+  33   1              P0 = ~0x01;
+  34   1              WE = 0;
+  35   1              
+  36   1              DU = 1;
+  37   1              P0 = ch[shi];
+  38   1              DU = 0;
+  39   1              delay(10);
+  40   1              
+  41   1              P0 = 0xff;
+  42   1              WE= 1;
+  43   1              P0 = ~0x02;
+  44   1              WE = 0;
+  45   1              
+  46   1              DU = 1;
+  47   1              P0 = ch[ge];
+  48   1              DU = 0;
+  49   1              delay(10);
+  50   1      }
+  51          
+  52          void timer0init(){
+  53   1              //timer0实现定时器的功能。（硬件延时）
+  54   1              TR0 = 1;
+C51 COMPILER V9.54   PROJECT                                                               01/27/2022 16:37:11 PAGE 2   
+
+  55   1              TMOD |= 0x01; 
+  56   1              TH0 = 0x4b;
+  57   1              TL0 = 0xd;
+  58   1      }
+  59          void timer1init(){
+  60   1              TR1 = 1; //定时计数器1作为计数器功能
+  61   1              TMOD |= 0x50;
+  62   1              TH1 = 0;
+  63   1              TL1 = 0; //低八位
+  64   1      }
+  65          
+  66          void main(){
+  67   1              timer0init();
+  68   1              timer1init();//对两个定时计数器初始化。
+  69   1              while(1)
+  70   1              {
+  71   2                      if(TF0)
+  72   2                      {
+  73   3                              //timer0已经溢出
+  74   3                              mSec++; //过去了50ms
+  75   3                              TH0 = 0x4b;
+  76   3                              TL0 = 0xfd;
+  77   3                              TF0 = 0;
+  78   3                              if(20==mSec)
+  79   3                              {
+  80   4                                      //过去了1000ms
+  81   4                                      sec++;
+  82   4                                      mSec = 0;
+  83   4                                      //用LED1发出一个脉冲
+  84   4                                      LED1 = ~LED1;
+  85   4                                      LED1 = ~LED1; //但是这样会导致看不到LED灯亮。
+  86   4                                      //可以把if条件改为(10==mSec)
+  87   4      
+  88   4                              }
+  89   3                              //以上代码使得计数器能够每1000ms增加1
+  90   3                      }
+  91   2                      if(TL1>99)TL1 = 0;
+  92   2                      display(TL1);
+  93   2              }
+  94   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    209    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     14       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
