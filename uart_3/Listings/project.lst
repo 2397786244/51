@@ -1,0 +1,97 @@
+C51 COMPILER V9.54   PROJECT                                                               02/01/2022 20:59:37 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE PROJECT
+OBJECT MODULE PLACED IN .\Objects\project.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE project.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\pro
+                    -ject.lst) OBJECT(.\Objects\project.obj)
+
+line level    source
+
+   1          /*串口通信的应用，发送0控制单片机关闭LED灯。发送1打开LED灯*/
+   2          #include <reg52.h>
+   3          
+   4          typedef unsigned int uint;
+   5          typedef unsigned char uchar;
+   6          
+   7          uint getCmd = 0;
+   8          uchar * msgOn = "LED已经打开！";
+   9          uchar * msgOff = "LED已经关闭！";
+  10          
+  11          void send_string(uchar * str);
+  12          
+  13          //微秒级延时
+  14          void delay(uint n){
+  15   1              uint i,j;
+  16   1              for(i=0;i<n;i++)
+  17   1                      for(j=0;j<114;j++);
+  18   1      }
+  19          
+  20          //定时器1的初始化。
+  21          void timer1Init(){
+  22   1              //把TL1和TH1赋值为0xfd;
+  23   1              //0xfd: 使得11.0592mhz的单片机波特率为9600
+  24   1              EA = 1; //中断总控制位
+  25   1              TMOD = 0x20; //设置为八位自动重装模式
+  26   1              TL1 = 0xfd;
+  27   1              TH1 = 0xfd;
+  28   1              TR1 = 1; //定时器启动。
+  29   1      }
+  30          void uartInit(){
+  31   1              ES = 1;
+  32   1              SM0 = 0;
+  33   1              SM1 = 1; //模式2.
+  34   1              REN = 1;//打开串口通信接收。
+  35   1      }
+  36          
+  37          void uartINT() interrupt 4{
+  38   1                      //串口中断。在接收到电脑发送的信息后将RI = 0;
+  39   1              if(RI){
+  40   2                      RI = 0;
+  41   2                      getCmd = SBUF; //接收
+  42   2                      if(getCmd){
+  43   3                              P1 = 0;//点亮所有的LED灯。                      
+  44   3                              send_string(msgOn);
+  45   3                              send_string("\r\n");
+  46   3                              delay(1000);
+  47   3                      }
+  48   2                      else{
+  49   3                              P1 = 0xff;
+  50   3                              send_string(msgOff);
+  51   3                              send_string("\r\n");
+  52   3                              delay(1000);
+  53   3                      }
+  54   2              }
+C51 COMPILER V9.54   PROJECT                                                               02/01/2022 20:59:37 PAGE 2   
+
+  55   1      }       
+  56          
+  57          void main(){
+  58   1              timer1Init();
+  59   1              uartInit();
+  60   1              while(1){
+  61   2              }       
+  62   1      }
+  63          
+  64          void send_string(uchar * str){
+  65   1              while(*str!='\0'){
+  66   2                      SBUF = *str;
+  67   2                      while(!TI); //等待发送完成。
+  68   2                      TI = 0;
+  69   2                      str++;
+  70   2              }               
+  71   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    198    ----
+   CONSTANT SIZE    =     31    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
