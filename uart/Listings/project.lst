@@ -1,0 +1,142 @@
+C51 COMPILER V9.54   PROJECT                                                               01/29/2022 23:20:00 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE PROJECT
+OBJECT MODULE PLACED IN .\Objects\project.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE project.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\pro
+                    -ject.lst) OBJECT(.\Objects\project.obj)
+
+line level    source
+
+   1          /**
+   2          * 串口通信。单片机接收数字，数码管显示。独立键盘按下S2累加value发送至电脑
+   3          */
+   4          
+   5          #include <reg52.h>
+   6          
+   7          typedef unsigned int uint;
+   8          typedef unsigned char uchar;
+   9          
+  10          uchar code table[10]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
+  11          uint code pos[3] = {0xfe,0xfd,0xfb};
+  12          uint value=0;
+  13          uint num=0;
+  14          
+  15          sbit WE = P2^7;
+  16          sbit DU = P2^6;
+  17          sbit key_s2 = P3^0;
+  18          
+  19          void delay(uint n);
+  20          void duli_key();
+  21          void display(uint num);
+  22          
+  23          //定时器0和定时器1和串口通信初始化
+  24          void timerInit(){
+  25   1              EA = 1;//总控制位
+  26   1              ET0 = 1;
+  27   1              ET1 = 1;//定时器0，1的中断打开
+  28   1              ES = 1; //串口中断打开
+  29   1              TR0 = 1;
+  30   1              TR1 = 1;//启动0和1两个定时器
+  31   1              //给定时器0和1赋初值
+  32   1              //定时器1用于串口通信。模式为8位自动重装
+  33   1              TMOD = 0x21; //定时器1的设置为0x20;
+  34   1              TL0 = 0xff;
+  35   1              TH0 = 0xed;
+  36   1              TL1 = 0xfd;
+  37   1              TH1 = 0xfd;//9600波特率
+  38   1              
+  39   1              //串口中断的设置
+  40   1              REN = 1;//接收控制位
+  41   1              SM0 = 0;
+  42   1              SM1 = 1;
+  43   1      }
+  44          //延时函数。矩阵键盘的扫描
+  45          void delay(uint n){
+  46   1              uint i,j;
+  47   1              for(i=0;i<n;i++)
+  48   1                      for(j=0;j<114;j++);
+  49   1      }
+  50          
+  51          //数码管显示
+  52          void display(uint num){
+  53   1              static uint wei=0;
+  54   1              uint bai;
+C51 COMPILER V9.54   PROJECT                                                               01/29/2022 23:20:00 PAGE 2   
+
+  55   1              uint shi;
+  56   1              uint ge;
+  57   1              bai = num /100;
+  58   1              shi = num/10 % 10;
+  59   1              ge = num % 10;
+  60   1              
+  61   1              //确定位选
+  62   1              P0 = 0xff;
+  63   1              WE = 1;
+  64   1              P0 = pos[wei];
+  65   1              WE = 0;
+  66   1              switch(wei){
+  67   2                      case 0:DU = 1;P0 = table[bai];DU = 0;break;
+  68   2                      case 1:DU = 1;P0 = table[shi];DU = 0;break;
+  69   2                      case 2:DU = 1;P0 = table[ge];DU = 0;break;
+  70   2              }
+  71   1              wei++;
+  72   1              if(wei==3)
+  73   1                      wei = 0;
+  74   1      }
+  75          
+  76          //定时器0的中断函数.用于display的延时显示
+  77          void timer0() interrupt 1{
+  78   1              //把TL0和TH0重新赋值为0xff和0xed;
+  79   1              TH0 = 0xed;
+  80   1              TL0 = 0xff;
+  81   1              display(num);
+  82   1      }
+  83          
+  84          //串口中断函数
+  85          void uart() interrupt 4{
+  86   1              //先判断TI是否为1.是否请求中断
+  87   1              if(TI){
+  88   2                      TI = 0;
+  89   2              }
+  90   1              if(RI){
+  91   2                      //接收中断标志位
+  92   2                      num = SBUF;
+  93   2                      RI = 0;
+  94   2              }
+  95   1      }
+  96          //独立键盘
+  97          void duli_key(){
+  98   1              //key_s2一开始是1
+  99   1              if(!key_s2){
+ 100   2                      delay(10);
+ 101   2                      if(!key_s2){
+ 102   3                              value++;
+ 103   3                              SBUF = value;
+ 104   3                      }
+ 105   2                      while(!key_s2);
+ 106   2              }
+ 107   1      }
+ 108          
+ 109          void main(){
+ 110   1              timerInit();
+ 111   1              while(1){
+ 112   2                      duli_key();
+ 113   2              }
+ 114   1      }
+
+
+C51 COMPILER V9.54   PROJECT                                                               01/29/2022 23:20:00 PAGE 3   
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    355    ----
+   CONSTANT SIZE    =     16    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      6       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
