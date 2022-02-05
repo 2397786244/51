@@ -1,0 +1,258 @@
+C51 COMPILER V9.54   PROJECT                                                               02/05/2022 20:46:55 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE PROJECT
+OBJECT MODULE PLACED IN .\Objects\project.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE project.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\pro
+                    -ject.lst) OBJECT(.\Objects\project.obj)
+
+line level    source
+
+   1          /**
+   2          *模拟IIC总线，EEPROM(带电可擦写只读储存器) 储存发送的数据，电脑接收。
+   3          * 发送多个数据，断电后读，用UART检查是不是写入的。
+   4          **/
+   5          #include<reg52.h>
+   6          #include<intrins.h>
+   7          #define SADDR 0xA0
+   8          typedef unsigned char uchar;
+   9          typedef unsigned int uint;
+  10          
+  11          //sbit WE = P2^7;
+  12          //sbit DU = P2^6;
+  13          sbit SDA = P2^0; //数据线
+  14          sbit SCL = P2^1; //IIC 时钟线
+  15          
+  16          //uchar code table[10] = {0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
+  17          //uchar code pos[] = {0xfe, 0xfd, 0xfb}; 三位数字位选显示的P0口配置
+  18          uchar value[16]; //储存EEPROM中读到的数据
+  19          uchar datSend[16] = {0x20,0xfe,0xfd,0xfb,0x06,0x66,0x6d,0x7d,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
+  20          bit ACKstatus = 0;
+  21          //从机应答状态。
+  22          
+  23          void delay(uint n); //延时函数
+  24          void delay5us(); //延时5us左右。用于IIC模拟通信时序
+  25          void iicStart(); //用于IIC发送、接收数据 发出起始信号的函数
+  26          void iicEnd(); //总线终止信号函数
+  27          bit getACK(); //从从机读应答状态的函数。如果非应答，返回1，否则0
+  28          void sendACK(bit i); //主机发送应答状态的函数
+  29          uchar getByte(); //从SDA读入数据，并返回给主调函数
+  30          void sendByte(uchar dat);  //把参数dat一位一位的发送给SDA。
+  31          void iicWrite(uchar addr,uchar dat); //把dat发送给从机(地址为SADDR，写入的首地址为addr，使用sendByte函数)
+  32          uchar iicRead(uchar addr); //从地址为SADDR从机的addr处读数据(使用getByte函数)返回给主调函数
+  33          //void display(uchar num); 显示value值。在定时器0中断函数中调用
+  34          
+  35          void delay(uint n){
+  36   1              uint i,j;
+  37   1              for(i=0;i<n;i++)
+  38   1                      for(j=0;j<114;j++);
+  39   1      }
+  40          
+  41          void delay5us(){
+  42   1              _nop_();
+  43   1      }
+  44          
+  45          //起始函数.
+  46          void iicStart(){
+  47   1              SCL = 1;
+  48   1              SDA = 1;
+  49   1              delay5us(); //至少4.7us
+  50   1              SDA = 0;
+  51   1              delay5us(); //至少4us
+  52   1      }
+  53          //结束函数。
+  54          void iicEnd(){
+C51 COMPILER V9.54   PROJECT                                                               02/05/2022 20:46:55 PAGE 2   
+
+  55   1              SCL = 0;
+  56   1              SDA = 0;
+  57   1              SCL = 1;
+  58   1              delay5us(); //至少4us
+  59   1              SDA = 1;
+  60   1              delay5us(); //至少保持4.7us
+  61   1      }       
+  62          
+  63          //主机判断是否得到了应答
+  64          bit getACK(){
+  65   1              SCL = 0; //拉低SCL时钟线，允许从机控制SDA
+  66   1              SCL = 1; //拉高读SDA
+  67   1              delay5us();
+  68   1              //保持至少4us后检查SDA
+  69   1              if(SDA){
+  70   2                      SCL = 0;
+  71   2                      return 1;
+  72   2              }
+  73   1              else{
+  74   2                      SCL = 0;
+  75   2                      return 0;
+  76   2              }       
+  77   1      }
+  78          
+  79          //主机发送应答
+  80          void sendACK(bit i){
+  81   1              SCL = 0; 
+  82   1              if(i){
+  83   2                      SDA = 1; //NOACK
+  84   2              }
+  85   1              else
+  86   1              {
+  87   2                      SDA = 0;
+  88   2              }
+  89   1              SCL = 1;
+  90   1              delay5us(); //至少保持4us
+  91   1              SCL = 0;
+  92   1              SDA = 1; //释放总线
+  93   1      }
+  94          
+  95          //从SDA中读到数据，并返回dat。
+  96          uchar getByte(){
+  97   1              uint i=0;
+  98   1              uchar dat=0;
+  99   1              for(i=0;i<8;i++){
+ 100   2                      dat <<= 1;
+ 101   2                      SCL = 1; //SCL置1，从sda读数据
+ 102   2                      if(SDA){
+ 103   3                              dat |= 0x01;
+ 104   3                      }
+ 105   2                      SCL = 0;
+ 106   2              }       
+ 107   1              return dat;
+ 108   1      }
+ 109          
+ 110          //通过IIC总线，往EEPROM写数据。随机写
+ 111          void iicWrite(uchar addr,uchar dat){
+ 112   1              //首先，发出起始信号
+ 113   1              iicStart();
+ 114   1              //然后发送从机地址加上读写方向。
+ 115   1              sendByte(SADDR + 0);  //0xA0即EEPROM的地址，0是写。
+ 116   1              //然后接收从机的一个应答.
+C51 COMPILER V9.54   PROJECT                                                               02/05/2022 20:46:55 PAGE 3   
+
+ 117   1              ACKstatus = getACK();
+ 118   1              //传输要写入的首地址，最大256个字节。
+ 119   1              sendByte(addr);
+ 120   1              ACKstatus = getACK();
+ 121   1              sendByte(dat);
+ 122   1              //发送num到EEPROM中
+ 123   1              ACKstatus = getACK();
+ 124   1              iicEnd();
+ 125   1      }
+ 126          
+ 127          //从EEPROM中读到数据 返回一个值
+ 128          uchar iicRead(uchar addr){
+ 129   1              uchar dat;
+ 130   1              //首先发出起始信号
+ 131   1              iicStart();
+ 132   1              //发送从机地址
+ 133   1              sendByte(SADDR + 0 ); //从机地址 + 写的方向，传入要读的首地址
+ 134   1              //接收从机一个应答
+ 135   1              ACKstatus = getACK();
+ 136   1              //发送要读的地方的首地址
+ 137   1              sendByte(addr);
+ 138   1              getACK();
+ 139   1              //再次发送起始信号
+ 140   1              iicStart();
+ 141   1              //发送从机地址
+ 142   1              sendByte(SADDR + 1); //读
+ 143   1              ACKstatus = getACK();
+ 144   1              dat = getByte();
+ 145   1              //读完之后发送一个ACK应答。
+ 146   1              sendACK(1);
+ 147   1              iicEnd();
+ 148   1              return dat;
+ 149   1      }
+ 150          //发送字节的的函数。
+ 151          void sendByte(uchar dat){
+ 152   1              uint i;
+ 153   1              for(i=0;i<8;i++){
+ 154   2                      SCL = 0; //把时钟线拉低，允许SDA变化。
+ 155   2                      if(dat& 0x80){
+ 156   3                              SDA = 1;
+ 157   3                      }
+ 158   2                      else{
+ 159   3                              SDA = 0;
+ 160   3                      }
+ 161   2                      dat <<= 1; //下一个变为0x40
+ 162   2                      SCL = 1; //从机会读SDA数据。
+ 163   2              }
+ 164   1              SCL = 0; //允许SDA变化。
+ 165   1              SDA = 1; //释放数据总线
+ 166   1      }
+ 167          //timer1用于产生9600的波特率
+ 168          void timerInit(){
+ 169   1              ET1 = 1;
+ 170   1              ES = 1; //串口中断允许位
+ 171   1              TMOD = 0x20; //定时器1用八位自动重装模式
+ 172   1              TH1 = 0xfd;
+ 173   1              TL1 = 0xfd;
+ 174   1              TR1 = 1;
+ 175   1      }
+ 176          void uartInit(){
+ 177   1              REN = 1;//允许接收位 SCON寄存器
+ 178   1              SM0 = 0;
+C51 COMPILER V9.54   PROJECT                                                               02/05/2022 20:46:55 PAGE 4   
+
+ 179   1              SM1 = 1;//串口工作方式配置
+ 180   1              //8位UART波特率可变
+ 181   1      }
+ 182                  
+ 183          //uart发送数据到电脑的函数
+ 184          void uartSendByte(uchar dat){
+ 185   1              SBUF = dat;
+ 186   1              while(!TI);//等待发送完成。完成之后硬件置1.
+ 187   1              TI = 0; //由软件置0
+ 188   1      }       
+ 189          
+ 190          void main(){
+ 191   1              uint i;
+ 192   1              uchar addr;
+ 193   1              timerInit();
+ 194   1              uartInit();
+ 195   1                      EA = 0;
+ 196   1                      addr = 0;
+ 197   1                      //先往EEPROM写入8个字节的数据
+ 198   1                      //写入完成后，断电，重新烧录，从EEPROM中读刚刚写入的数据
+ 199   1                      for(i=0;i<16;i++){
+ 200   2                              delay(20);      
+ 201   2                          iicWrite(addr,datSend[i]);
+ 202   2                              addr++;
+ 203   2                      }
+ 204   1                      if(ACKstatus){
+ 205   2                              P0 = 0;
+ 206   2                      }
+ 207   1                      else{
+ 208   2                              P0 = 0xff;
+ 209   2                      }
+ 210   1                      addr = 0;
+ 211   1                      //从EEPROM读
+ 212   1                      for(i=0;i<16;i++){
+ 213   2                              delay(20);
+ 214   2                              value[i] = iicRead(addr);
+ 215   2                              addr++;
+ 216   2                      }
+ 217   1                      if(ACKstatus){
+ 218   2                              P0 = 0;
+ 219   2                      }
+ 220   1                      else{
+ 221   2                              P0 = 0xff;
+ 222   2                      }
+ 223   1                      EA = 1;
+ 224   1                      //最后通过UART发送到电脑
+ 225   1                      for(i=0;i<16;i++)
+ 226   1                              uartSendByte(value[i]);
+ 227   1              while(1);
+ 228   1      }       
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    443    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     32       6
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
