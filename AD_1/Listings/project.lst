@@ -1,0 +1,145 @@
+C51 COMPILER V9.54   PROJECT                                                               02/11/2022 15:00:08 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE PROJECT
+OBJECT MODULE PLACED IN .\Objects\project.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE project.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\pro
+                    -ject.lst) OBJECT(.\Objects\project.obj)
+
+line level    source
+
+   1          #include<reg52.h>
+   2          #include<intrins.h>
+   3          
+   4          #define CMD_AIN1 0x94 
+   5          #define CMD_AIN2 0xd4
+   6          #define CMD_AIN3 0xa4
+   7          #define CMD_AIN4 0xe4
+   8          //光敏AIN1 热敏AIN2 电位器AIN3 外部输入AIN4
+   9          typedef unsigned int uint;
+  10          typedef unsigned char uchar;
+  11          
+  12          sbit WE = P2^7;
+  13          sbit DU = P2^6;
+  14          sbit DIN = P2^0; //串行数据输入端
+  15          sbit DCLK = P2^1;  //提供时钟线
+  16          sbit CS = P3^7;
+  17          sbit DOUT = P2^5; //串行输出
+  18          uchar code ch[10] = {0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
+  19          uchar code pos[4] = {0xfe, 0xfd, 0xfb,0xf7};
+  20          uint wei = 0;
+  21          
+  22          //延时函数
+  23          void Delay_Ms(uint ms)
+  24          {
+  25   1           uint i;
+  26   1               do{
+  27   2                    i = 11059200UL / 96000; 
+  28   2                        while(--i);   //96T per loop
+  29   2           }while(--ms);
+  30   1      }
+  31          
+  32          void display(uint i)
+  33          {
+  34   1              uchar qian, bai, shi, ge;
+  35   1              static uchar wei;
+  36   1              qian = i / 1000;
+  37   1              bai = i % 1000 / 100;
+  38   1              shi = i % 100 / 10;
+  39   1              ge = i % 10;
+  40   1              
+  41   1              P0 = 0XFF;//清除断码
+  42   1              WE = 1;//打开位选锁存器
+  43   1              P0 = pos[wei];
+  44   1              WE = 0;//锁存位选数据
+  45   1              P0 = 0XFF;//清除断码
+  46   1              switch(wei)
+  47   1              {
+  48   2                      case 0: DU = 1; P0 = ch[qian] | 0x80;   DU = 0; break;//0x80加上小数点
+  49   2                      case 1: DU = 1; P0 = ch[bai];   DU = 0; break;  
+  50   2                      case 2: DU = 1; P0 = ch[shi];   DU = 0; break;
+  51   2                      case 3: DU = 1; P0 = ch[ge];    DU = 0; break;          
+  52   2              }
+  53   1              wei++;
+  54   1              if(wei == 4)
+C51 COMPILER V9.54   PROJECT                                                               02/11/2022 15:00:08 PAGE 2   
+
+  55   1                      wei = 0;
+  56   1      }
+  57          
+  58          void spiSend(uchar cmd){
+  59   1              uint i;
+  60   1              for(i=0;i<8;i++){
+  61   2                      DCLK = 0;
+  62   2                      if(cmd & 0x80){
+  63   3                              DIN = 1;
+  64   3                      }       
+  65   2                      else
+  66   2                              DIN = 0;
+  67   2                      DCLK = 1;//上升沿的时候锁存一位数据
+  68   2                      cmd <<= 1;
+  69   2              }       
+  70   1      }
+  71          
+  72          uint spiRead(){
+  73   1              uint i;
+  74   1              uint dat = 0;
+  75   1              for(i = 0;i<12 ;i++){
+  76   2                      //选择XPT2604 12位模式
+  77   2                      dat <<= 1;
+  78   2                      DCLK = 1;
+  79   2                      DCLK = 0; //下降沿的时候从DOUT上读一位数据。
+  80   2                      if(DOUT)
+  81   2                              dat |= 0x01;
+  82   2              }
+  83   1              return dat;
+  84   1      }       
+  85          
+  86          uint adTrans(uchar cmd){
+  87   1              uint dat;
+  88   1              CS = 0; //片选信号先置0
+  89   1              spiSend(cmd); //发送控制指令
+  90   1              DCLK = 0; //发完指令后先把DCLK拉低
+  91   1              _nop_();
+  92   1              _nop_();
+  93   1              _nop_();
+  94   1              _nop_();
+  95   1              _nop_();
+  96   1              //延时25us左右。
+  97   1              //延时后，可以从DOUT上读数据
+  98   1              dat = spiRead();
+  99   1              CS = 1; //转换结束。把CS拉高
+ 100   1              return dat;
+ 101   1      }
+ 102          
+ 103          void main(){
+ 104   1              uint msCnt;
+ 105   1              uint value;
+ 106   1              while(1){
+ 107   2                      if(100 <= msCnt)
+ 108   2                      {
+ 109   3                              msCnt = 0;
+ 110   3                              value = adTrans(CMD_AIN4); //每500ms进行一次转换。
+ 111   3                              value *= 1.2207; //5000mv/4096的转换 value实际上得到的是0-4095之间的数码
+ 112   3                      }
+ 113   2                      msCnt++;
+ 114   2                      display(value);
+ 115   2                      Delay_Ms(5);
+ 116   2              }       
+C51 COMPILER V9.54   PROJECT                                                               02/11/2022 15:00:08 PAGE 3   
+
+ 117   1      }       
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    347    ----
+   CONSTANT SIZE    =     14    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3       7
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
