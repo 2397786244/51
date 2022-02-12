@@ -1,0 +1,156 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        02/12/2022  17:37:50  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL5\C51\BIN\BL51.EXE .\Objects\project.obj TO .\Objects\project PRINT (.\Listings\project.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\project.obj (PROJECT)
+  D:\KEIL5\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL5\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  .\Objects\project (PROJECT)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0002H     UNIT         ?DT?PROJECT
+            IDATA   000AH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0007H     UNIT         ?C_INITSEG
+                    000AH     0001H                  *** GAP ***
+            CODE    000BH     0003H     ABSOLUTE     
+            CODE    000EH     008CH     UNIT         ?C_C51STARTUP
+            CODE    009AH     0043H     UNIT         ?PR?MAIN?PROJECT
+            CODE    00DDH     0020H     UNIT         ?PR?_DELAY?PROJECT
+            CODE    00FDH     001EH     UNIT         ?PR?PWMGENERATE?PROJECT
+            CODE    011BH     0010H     UNIT         ?PR?TIMER0INIT?PROJECT
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\project (PROJECT)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?PROJECT
+  +--> ?C_INITSEG
+
+?PR?MAIN?PROJECT
+  +--> ?PR?TIMER0INIT?PROJECT
+  +--> ?PR?_DELAY?PROJECT
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\project (PROJECT)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/12/2022  17:37:50  PAGE 2
+
+
+  -------         MODULE        PROJECT
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  B:00E8H.4       PUBLIC        DA_DATA
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00E8H         PUBLIC        P4
+  B:00B0H.0       PUBLIC        S2
+  B:00B0H.1       PUBLIC        S3
+  B:00A8H.7       PUBLIC        EA
+  C:00FDH         PUBLIC        pwmGenerate
+  D:00A8H         PUBLIC        IE
+  C:00DDH         PUBLIC        _delay
+  D:00B8H         PUBLIC        IP
+  C:009AH         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  D:0008H         PUBLIC        DA_VAL
+  B:00A8H.1       PUBLIC        ET0
+  D:008CH         PUBLIC        TH0
+  D:008AH         PUBLIC        TL0
+  B:0088H.4       PUBLIC        TR0
+  D:00C8H         PUBLIC        T2CON
+  C:011BH         PUBLIC        timer0Init
+  D:00D0H         PUBLIC        PSW
+  D:0009H         PUBLIC        pwmCnt
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        n
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0002H         SYMBOL        j
+  -------         ENDDO         
+  C:00DDH         LINE#         23
+  C:00DDH         LINE#         25
+  C:00E7H         LINE#         26
+  C:00FCH         LINE#         27
+  -------         ENDPROC       _DELAY
+  -------         PROC          TIMER0INIT
+  C:011BH         LINE#         29
+  C:011BH         LINE#         30
+  C:011DH         LINE#         31
+  C:011FH         LINE#         32
+  C:0122H         LINE#         33
+  C:0125H         LINE#         34
+  C:0128H         LINE#         35
+  C:012AH         LINE#         36
+  -------         ENDPROC       TIMER0INIT
+  -------         PROC          PWMGENERATE
+  C:00FDH         LINE#         38
+  C:0101H         LINE#         39
+  C:0103H         LINE#         40
+  C:010AH         LINE#         41
+  C:010CH         LINE#         42
+  C:010EH         LINE#         43
+  C:010EH         LINE#         44
+  C:0110H         LINE#         45
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/12/2022  17:37:50  PAGE 3
+
+
+  C:0110H         LINE#         46
+  C:0113H         LINE#         47
+  C:0116H         LINE#         48
+  -------         ENDPROC       PWMGENERATE
+  -------         PROC          MAIN
+  C:009AH         LINE#         50
+  C:009AH         LINE#         51
+  C:009DH         LINE#         52
+  C:009DH         LINE#         53
+  C:00A0H         LINE#         54
+  C:00A7H         LINE#         56
+  C:00B1H         LINE#         57
+  C:00B3H         LINE#         58
+  C:00B6H         LINE#         59
+  C:00B9H         LINE#         60
+  C:00BCH         LINE#         61
+  C:00BCH         LINE#         63
+  C:00BCH         LINE#         64
+  C:00BFH         LINE#         65
+  C:00C6H         LINE#         67
+  C:00D0H         LINE#         68
+  C:00D2H         LINE#         69
+  C:00D5H         LINE#         70
+  C:00D8H         LINE#         71
+  C:00DBH         LINE#         72
+  C:00DBH         LINE#         74
+  C:00DBH         LINE#         75
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        PROJECT
+
+Program Size: data=11.0 xdata=0 code=298
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)
