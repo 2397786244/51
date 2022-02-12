@@ -1,0 +1,278 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        02/12/2022  14:49:11  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL5\C51\BIN\BL51.EXE .\Objects\project.obj TO .\Objects\project PRINT (.\Listings\project.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\project.obj (PROJECT)
+  D:\KEIL5\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL5\C51\LIB\C51S.LIB (?C?UIDIV)
+  D:\KEIL5\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  .\Objects\project (PROJECT)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0006H     UNIT         _DATA_GROUP_
+            DATA    000EH     0005H     UNIT         ?DT?PROJECT
+            IDATA   0013H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+                    0003H     0008H                  *** GAP ***
+            CODE    000BH     0003H     ABSOLUTE     
+            CODE    000EH     008CH     UNIT         ?C_C51STARTUP
+            CODE    009AH     0081H     UNIT         ?PR?_DISPLAY?PROJECT
+            CODE    011BH     0055H     UNIT         ?C?LIB_CODE
+            CODE    0170H     0053H     UNIT         ?PR?MAIN?PROJECT
+            CODE    01C3H     0022H     UNIT         ?PR?SPIGET?PROJECT
+            CODE    01E5H     0021H     UNIT         ?PR?_SPISEND?PROJECT
+            CODE    0206H     0020H     UNIT         ?PR?_DELAY?PROJECT
+            CODE    0226H     0018H     UNIT         ?PR?PWMGENERATE?PROJECT
+            CODE    023EH     0014H     UNIT         ?PR?_ADTRANS?PROJECT
+            CODE    0252H     0010H     UNIT         ?PR?TIMER0INIT?PROJECT
+            CODE    0262H     000EH     UNIT         ?CO?PROJECT
+            CODE    0270H     000BH     UNIT         ?C_INITSEG
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\project (PROJECT)
+
+
+SEGMENT                           DATA_GROUP 
+  +--> CALLED SEGMENT           START    LENGTH
+-----------------------------------------------
+?C_C51STARTUP                   -----    -----
+  +--> ?PR?MAIN?PROJECT
+  +--> ?C_INITSEG
+
+?PR?MAIN?PROJECT                0008H    0004H
+  +--> ?PR?TIMER0INIT?PROJECT
+  +--> ?PR?_ADTRANS?PROJECT
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/12/2022  14:49:11  PAGE 2
+
+
+  +--> ?PR?_DISPLAY?PROJECT
+  +--> ?PR?_DELAY?PROJECT
+
+?PR?_ADTRANS?PROJECT            -----    -----
+  +--> ?PR?_SPISEND?PROJECT
+  +--> ?PR?SPIGET?PROJECT
+
+?PR?_DISPLAY?PROJECT            000CH    0002H
+  +--> ?CO?PROJECT
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\project (PROJECT)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        PROJECT
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00E8H         PUBLIC        P4
+  B:00A8H.7       PUBLIC        EA
+  C:0226H         PUBLIC        pwmGenerate
+  D:00A8H         PUBLIC        IE
+  C:0206H         PUBLIC        _delay
+  B:00B0H.7       PUBLIC        CS
+  B:00A0H.6       PUBLIC        DU
+  D:00B8H         PUBLIC        IP
+  B:00A0H.7       PUBLIC        WE
+  B:00A0H.1       PUBLIC        DCLK
+  C:0170H         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  B:00A0H.5       PUBLIC        DOUT
+  D:000FH         PUBLIC        wei
+  D:0011H         PUBLIC        DA_VAL
+  B:00A8H.1       PUBLIC        ET0
+  C:0262H         PUBLIC        ch
+  D:008CH         PUBLIC        TH0
+  D:008AH         PUBLIC        TL0
+  C:023EH         PUBLIC        _adTrans
+  C:026CH         PUBLIC        pos
+  B:0088H.4       PUBLIC        TR0
+  C:01E5H         PUBLIC        _spiSend
+  B:00A0H.0       PUBLIC        DIN
+  D:00C8H         PUBLIC        T2CON
+  C:0252H         PUBLIC        timer0Init
+  C:01C3H         PUBLIC        spiGet
+  B:00E8H.4       PUBLIC        PWM_DATA
+  C:009AH         PUBLIC        _display
+  D:00D0H         PUBLIC        PSW
+  D:0012H         PUBLIC        pwmCnt
+  -------         PROC          _DELAY
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/12/2022  14:49:11  PAGE 3
+
+
+  D:0006H         SYMBOL        n
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0002H         SYMBOL        j
+  -------         ENDDO         
+  C:0206H         LINE#         26
+  C:0206H         LINE#         28
+  C:0210H         LINE#         29
+  C:0225H         LINE#         30
+  -------         ENDPROC       _DELAY
+  -------         PROC          TIMER0INIT
+  C:0252H         LINE#         32
+  C:0252H         LINE#         33
+  C:0254H         LINE#         34
+  C:0256H         LINE#         35
+  C:0259H         LINE#         36
+  C:025CH         LINE#         37
+  C:025FH         LINE#         39
+  C:0261H         LINE#         40
+  -------         ENDPROC       TIMER0INIT
+  -------         PROC          _DISPLAY
+  D:0002H         SYMBOL        i
+  -------         DO            
+  D:000CH         SYMBOL        bai
+  D:000DH         SYMBOL        shi
+  D:0007H         SYMBOL        ge
+  D:000EH         SYMBOL        wei
+  -------         ENDDO         
+  C:009AH         LINE#         42
+  C:009EH         LINE#         43
+  C:009EH         LINE#         46
+  C:00B4H         LINE#         47
+  C:00CEH         LINE#         48
+  C:00DBH         LINE#         50
+  C:00DEH         LINE#         51
+  C:00E0H         LINE#         52
+  C:00E8H         LINE#         53
+  C:00EAH         LINE#         54
+  C:00EDH         LINE#         55
+  C:00F9H         LINE#         56
+  C:00F9H         LINE#         57
+  C:00FFH         LINE#         58
+  C:0105H         LINE#         59
+  C:0110H         LINE#         60
+  C:0110H         LINE#         61
+  C:0112H         LINE#         62
+  C:0117H         LINE#         63
+  C:011AH         LINE#         64
+  -------         ENDPROC       _DISPLAY
+  -------         PROC          PWMGENERATE
+  C:0226H         LINE#         66
+  C:022AH         LINE#         67
+  C:0231H         LINE#         68
+  C:0233H         LINE#         69
+  C:0235H         LINE#         70
+  C:0235H         LINE#         71
+  C:0237H         LINE#         72
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/12/2022  14:49:11  PAGE 4
+
+
+  C:0237H         LINE#         73
+  C:0239H         LINE#         74
+  -------         ENDPROC       PWMGENERATE
+  -------         PROC          _SPISEND
+  D:0007H         SYMBOL        cmd
+  -------         DO            
+  D:0004H         SYMBOL        i
+  -------         ENDDO         
+  C:01E5H         LINE#         77
+  C:01E5H         LINE#         79
+  C:01E8H         LINE#         80
+  C:01EAH         LINE#         81
+  C:01EEH         LINE#         82
+  C:01F0H         LINE#         83
+  C:01F2H         LINE#         84
+  C:01F2H         LINE#         85
+  C:01F4H         LINE#         86
+  C:01F4H         LINE#         87
+  C:01F6H         LINE#         88
+  C:01FAH         LINE#         89
+  C:0205H         LINE#         90
+  -------         ENDPROC       _SPISEND
+  -------         PROC          SPIGET
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0006H         SYMBOL        dat
+  -------         ENDDO         
+  C:01C3H         LINE#         92
+  C:01C3H         LINE#         94
+  C:01C6H         LINE#         95
+  C:01C8H         LINE#         96
+  C:01CFH         LINE#         97
+  C:01D1H         LINE#         98
+  C:01D3H         LINE#         99
+  C:01D6H         LINE#         100
+  C:01D9H         LINE#         101
+  C:01E4H         LINE#         102
+  C:01E4H         LINE#         103
+  -------         ENDPROC       SPIGET
+  -------         PROC          _ADTRANS
+  D:0007H         SYMBOL        cmd
+  -------         DO            
+  D:0006H         SYMBOL        dat
+  -------         ENDDO         
+  C:023EH         LINE#         105
+  C:023EH         LINE#         107
+  C:0240H         LINE#         108
+  C:0242H         LINE#         109
+  C:0245H         LINE#         111
+  C:0247H         LINE#         112
+  C:0248H         LINE#         113
+  C:0249H         LINE#         114
+  C:024AH         LINE#         115
+  C:024BH         LINE#         116
+  C:024CH         LINE#         117
+  C:024FH         LINE#         118
+  C:0251H         LINE#         119
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/12/2022  14:49:11  PAGE 5
+
+
+  C:0251H         LINE#         120
+  -------         ENDPROC       _ADTRANS
+  -------         PROC          MAIN
+  -------         DO            
+  D:0008H         SYMBOL        msCnt
+  D:000AH         SYMBOL        value
+  -------         ENDDO         
+  C:0170H         LINE#         121
+  C:0170H         LINE#         122
+  C:0170H         LINE#         123
+  C:0175H         LINE#         125
+  C:0179H         LINE#         127
+  C:017CH         LINE#         128
+  C:017CH         LINE#         129
+  C:0187H         LINE#         130
+  C:018CH         LINE#         131
+  C:018EH         LINE#         132
+  C:0197H         LINE#         133
+  C:01A6H         LINE#         134
+  C:01A9H         LINE#         135
+  C:01ABH         LINE#         136
+  C:01ABH         LINE#         137
+  C:01B2H         LINE#         138
+  C:01BAH         LINE#         139
+  C:01C1H         LINE#         140
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        PROJECT
+
+  -------         MODULE        ?C?UIDIV
+  C:011BH         PUBLIC        ?C?UIDIV
+  -------         ENDMOD        ?C?UIDIV
+
+Program Size: data=20.0 xdata=0 code=627
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

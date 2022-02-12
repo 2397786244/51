@@ -1,0 +1,171 @@
+C51 COMPILER V9.54   PROJECT                                                               02/12/2022 14:49:11 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE PROJECT
+OBJECT MODULE PLACED IN .\Objects\project.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE project.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\pro
+                    -ject.lst) OBJECT(.\Objects\project.obj)
+
+line level    source
+
+   1          /** 用光敏电阻调节LED的变化。 先得到光敏电阻电平A-->数字量D，再产生相应的方波，从DOUT输出到LED接口。
+   2          **/
+   3          #include <reg52.h>
+   4          #include <intrins.h> //为_nop_函数提供原型
+   5          #define AIN3 0xe4
+   6          #define AIN1 0x94
+   7          typedef unsigned int uint;
+   8          typedef unsigned char uchar;
+   9          
+  10          sbit WE = P2^7;
+  11          sbit DU = P2^6;
+  12          sfr P4 = 0xe8; //P4寄存器没有在reg52中定义
+  13          //位定义
+  14          sbit PWM_DATA = P4^4; //输出方波进行放大.从DOUT中输出。
+  15          sbit CS = P3^7;
+  16          sbit DCLK = P2^1;
+  17          sbit DIN = P2^0;
+  18          sbit DOUT = P2^5;
+  19          uchar code ch[10] = {0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
+  20          uchar code pos[4] = {0xfe, 0xfd, 0xfb,0xf7};
+  21          
+  22          uint wei = 0;
+  23          uchar pwmCnt = 0;
+  24          uchar DA_VAL = 80;  //设定pwm占空比。0-255内取值。
+  25          
+  26          void delay(uint n){
+  27   1              uint i,j;
+  28   1              for(i=0;i<n;i++)
+  29   1                      for(j=0;j<114;j++);
+  30   1      }
+  31          
+  32          void timer0Init(){
+  33   1              EA = 1; //总中断控制
+  34   1              ET0 = 1; //定时器0中断
+  35   1              TMOD = 0x02; //八位自动重装
+  36   1              TL0 = 220;
+  37   1              TH0 = 220; // 100hz,每次溢出产生的中断让pwm保持一个高电平或输出低电平总共
+  38   1              // (256 - 220) * 256 * 1.085us 为一个pwm周期。
+  39   1              TR0 = 1; //定时器打开。
+  40   1      }
+  41          
+  42          void display(uint i)
+  43          {
+  44   1              uchar bai, shi, ge;
+  45   1              static uchar wei;
+  46   1              bai = i % 1000 / 100;
+  47   1              shi = i % 100 / 10;
+  48   1              ge = i % 10;
+  49   1              
+  50   1              P0 = 0XFF;
+  51   1              WE = 1;
+  52   1              P0 = pos[wei];
+  53   1              WE = 0;
+  54   1              P0 = 0XFF;
+C51 COMPILER V9.54   PROJECT                                                               02/12/2022 14:49:11 PAGE 2   
+
+  55   1              switch(wei)
+  56   1              {
+  57   2                      case 0: DU = 1; P0 = ch[bai];   DU = 0; break;  
+  58   2                      case 1: DU = 1; P0 = ch[shi];   DU = 0; break;
+  59   2                      case 2: DU = 1; P0 = ch[ge];    DU = 0; break;          
+  60   2              }
+  61   1              wei++;
+  62   1              if(wei == 3)
+  63   1                      wei = 0;
+  64   1      }
+  65          
+  66          void pwmGenerate() interrupt 1{
+  67   1              if(pwmCnt<=DA_VAL){
+  68   2                      PWM_DATA = 1;
+  69   2              }       
+  70   1              else{
+  71   2                      PWM_DATA = 0;
+  72   2              }
+  73   1              pwmCnt++; //溢出自动为0
+  74   1      }       
+  75          
+  76          //SPI通信发送控制指令。
+  77          void spiSend(uchar cmd){
+  78   1              uint i;
+  79   1              for(i=0;i<8;i++){
+  80   2                      DCLK = 0;
+  81   2                      if(cmd & 0x80){
+  82   3                              DIN = 1;
+  83   3                      }
+  84   2                      else{
+  85   3                              DIN = 0;
+  86   3                      }
+  87   2                      DCLK = 1;
+  88   2                      cmd <<= 1;
+  89   2              }       
+  90   1      }
+  91          //从SPI总线上接收数据。
+  92          uint spiGet(){
+  93   1              uint i;
+  94   1              uint dat = 0;
+  95   1              for(i=0;i<12;i++){
+  96   2                      dat <<= 1;
+  97   2                      DCLK = 1;
+  98   2                      DCLK = 0; //下降沿之后读取DOUT上一位数据
+  99   2                      if(DOUT)
+ 100   2                              dat |= 0x01;
+ 101   2              }       
+ 102   1              return dat;
+ 103   1      }
+ 104          
+ 105          uint adTrans(uchar cmd){
+ 106   1              uint dat;
+ 107   1              CS = 0; //片选信号置0
+ 108   1              DCLK = 0;
+ 109   1              spiSend(cmd);
+ 110   1              //发送完控制指令后置DCLK为0
+ 111   1              DCLK = 0;
+ 112   1              _nop_();
+ 113   1              _nop_();
+ 114   1              _nop_();
+ 115   1              _nop_();
+ 116   1              _nop_();
+C51 COMPILER V9.54   PROJECT                                                               02/12/2022 14:49:11 PAGE 3   
+
+ 117   1              dat = spiGet();
+ 118   1              CS = 1;
+ 119   1              return dat;
+ 120   1      }       
+ 121          int main()
+ 122          {
+ 123   1              uint msCnt = 0;
+ 124   1      
+ 125   1              uint value = 0;
+ 126   1              // 80 - 255
+ 127   1              timer0Init();
+ 128   1              while(1){
+ 129   2                      if(300 <= msCnt){ //每0.3秒钟获取光敏电阻的电平。
+ 130   3                              msCnt = 0;
+ 131   3                              EA = 0; //关闭中断，防止定时器中断产生的PWM干扰后面读取DOUT数据。
+ 132   3                              value = adTrans(AIN1);
+ 133   3                              DA_VAL = value / 16;
+ 134   3                              pwmCnt = 0;
+ 135   3                              EA = 1;
+ 136   3                      }
+ 137   2              display(DA_VAL);
+ 138   2              msCnt++;
+ 139   2              delay(1);
+ 140   2              }
+ 141   1              return 0;
+ 142   1      }       
+*** WARNING C294 IN LINE 141 OF project.c: unreachable code
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    371    ----
+   CONSTANT SIZE    =     14    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      5       6
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
