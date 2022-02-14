@@ -1,0 +1,209 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        02/14/2022  21:17:59  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL5\C51\BIN\BL51.EXE .\Objects\project.obj TO .\Objects\project PRINT (.\Listings\project.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\project.obj (PROJECT)
+  D:\KEIL5\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL5\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  .\Objects\project (PROJECT)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0004H     UNIT         _DATA_GROUP_
+            DATA    000CH     0002H     UNIT         ?DT?PROJECT
+            IDATA   000EH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0008H     UNIT         ?PR?TIMER0INIT?PROJECT
+            CODE    000BH     0003H     ABSOLUTE     
+            CODE    000EH     017EH     UNIT         ?CO?PROJECT
+            CODE    018CH     00B3H     UNIT         ?PR?MAIN?PROJECT
+            CODE    023FH     008CH     UNIT         ?C_C51STARTUP
+            CODE    02CBH     0024H     UNIT         ?PR?_NOTESPLAY?PROJECT
+            CODE    02EFH     0020H     UNIT         ?PR?_DELAY?PROJECT
+            CODE    030FH     0020H     UNIT         ?PR?_NOTES0PLAY?PROJECT
+            CODE    032FH     0020H     UNIT         ?PR?_GETNOTESINDEX?PROJECT
+            CODE    034FH     000DH     UNIT         ?PR?BEEPVOICE?PROJECT
+            CODE    035CH     0007H     UNIT         ?C_INITSEG
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\project (PROJECT)
+
+
+SEGMENT                              DATA_GROUP 
+  +--> CALLED SEGMENT              START    LENGTH
+--------------------------------------------------
+?C_C51STARTUP                      -----    -----
+  +--> ?PR?MAIN?PROJECT
+  +--> ?C_INITSEG
+
+?PR?MAIN?PROJECT                   0008H    0004H
+  +--> ?PR?TIMER0INIT?PROJECT
+  +--> ?CO?PROJECT
+  +--> ?PR?_GETNOTESINDEX?PROJECT
+  +--> ?PR?_NOTESPLAY?PROJECT
+  +--> ?PR?_NOTES0PLAY?PROJECT
+  +--> ?PR?_DELAY?PROJECT
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/14/2022  21:17:59  PAGE 2
+
+
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\project (PROJECT)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        PROJECT
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  D:00A8H         PUBLIC        IE
+  D:000CH         PUBLIC        musicNextH
+  C:02EFH         PUBLIC        _delay
+  D:000DH         PUBLIC        musicNextL
+  C:030FH         PUBLIC        _notes0play
+  C:034FH         PUBLIC        beepVoice
+  D:00B8H         PUBLIC        IP
+  B:00B0H.0       PUBLIC        musicBeep
+  C:018CH         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  B:00A8H.1       PUBLIC        ET0
+  C:032FH         PUBLIC        _getNotesIndex
+  D:008CH         PUBLIC        TH0
+  D:008AH         PUBLIC        TL0
+  B:0088H.4       PUBLIC        TR0
+  C:02CBH         PUBLIC        _notesplay
+  D:00C8H         PUBLIC        T2CON
+  C:0003H         PUBLIC        timer0Init
+  C:000EH         PUBLIC        musicNotesH
+  D:00D0H         PUBLIC        PSW
+  C:001DH         PUBLIC        musicNotesL
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        n
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0002H         SYMBOL        j
+  -------         ENDDO         
+  C:02EFH         LINE#         19
+  C:02EFH         LINE#         21
+  C:02F9H         LINE#         22
+  C:030EH         LINE#         23
+  -------         ENDPROC       _DELAY
+  -------         PROC          _NOTESPLAY
+  D:0006H         SYMBOL        n
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0002H         SYMBOL        j
+  -------         ENDDO         
+  C:02CBH         LINE#         25
+  C:02CBH         LINE#         27
+  C:02CDH         LINE#         28
+  C:02D7H         LINE#         29
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/14/2022  21:17:59  PAGE 3
+
+
+  C:02ECH         LINE#         30
+  C:02EEH         LINE#         31
+  -------         ENDPROC       _NOTESPLAY
+  -------         PROC          _NOTES0PLAY
+  D:0006H         SYMBOL        n
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0002H         SYMBOL        j
+  -------         ENDDO         
+  C:030FH         LINE#         33
+  C:030FH         LINE#         34
+  C:030FH         LINE#         36
+  C:0319H         LINE#         37
+  C:032EH         LINE#         38
+  -------         ENDPROC       _NOTES0PLAY
+  -------         PROC          TIMER0INIT
+  C:0003H         LINE#         41
+  C:0003H         LINE#         42
+  C:0005H         LINE#         43
+  C:0007H         LINE#         44
+  C:000AH         LINE#         45
+  -------         ENDPROC       TIMER0INIT
+  -------         PROC          BEEPVOICE
+  C:034FH         LINE#         47
+  C:034FH         LINE#         48
+  C:0351H         LINE#         49
+  C:0353H         LINE#         50
+  C:0356H         LINE#         51
+  C:0359H         LINE#         52
+  C:035BH         LINE#         53
+  -------         ENDPROC       BEEPVOICE
+  -------         PROC          _GETNOTESINDEX
+  D:0006H         SYMBOL        note
+  -------         DO            
+  D:0004H         SYMBOL        index
+  -------         ENDDO         
+  C:032FH         LINE#         55
+  C:032FH         LINE#         57
+  C:033EH         LINE#         58
+  C:0341H         LINE#         59
+  C:0343H         LINE#         60
+  C:0343H         LINE#         61
+  C:034AH         LINE#         62
+  C:034AH         LINE#         63
+  C:034EH         LINE#         64
+  -------         ENDPROC       _GETNOTESINDEX
+  -------         PROC          MAIN
+  -------         DO            
+  D:0008H         SYMBOL        i
+  D:0006H         SYMBOL        index
+  D:000AH         SYMBOL        delay0time
+  C:002CH         SYMBOL        music
+  -------         ENDDO         
+  C:018CH         LINE#         66
+  C:018CH         LINE#         69
+  C:0191H         LINE#         75
+  C:0194H         LINE#         76
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/14/2022  21:17:59  PAGE 4
+
+
+  C:0196H         LINE#         77
+  C:0196H         LINE#         78
+  C:019BH         LINE#         79
+  C:01BCH         LINE#         80
+  C:01BCH         LINE#         81
+  C:01C0H         LINE#         82
+  C:01C0H         LINE#         83
+  C:01C3H         LINE#         84
+  C:01D1H         LINE#         85
+  C:01DFH         LINE#         86
+  C:01FCH         LINE#         87
+  C:01FEH         LINE#         88
+  C:01FEH         LINE#         89
+  C:021AH         LINE#         91
+  C:0220H         LINE#         92
+  C:0220H         LINE#         93
+  C:022BH         LINE#         94
+  C:0232H         LINE#         95
+  C:0235H         LINE#         96
+  C:023CH         LINE#         97
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        PROJECT
+
+Program Size: data=15.0 xdata=0 code=867
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)
