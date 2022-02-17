@@ -1,0 +1,210 @@
+C51 COMPILER V9.54   PROJECT                                                               02/17/2022 15:11:22 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE PROJECT
+OBJECT MODULE PLACED IN .\Objects\project.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE project.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\pro
+                    -ject.lst) OBJECT(.\Objects\project.obj)
+
+line level    source
+
+   1          /**
+   2          *@brief 温度转换 DS18B20
+   3          * 流程：对18B20初始化，发送ROM操作指令，温度转换指令
+   4          * 再复位，ROM操作指令，读指令（从寄存器0字节开始读，读两个字节）。
+   5          * 把结果显示在数码管上。
+   6          **/
+   7          #include <reg52.h>
+   8          #include <intrins.h>
+   9          
+  10          
+  11          sbit DQ = P2^2;  //1-wire总线的数据传输线
+  12          sbit WE = P2^7;
+  13          sbit DU = P2^6;
+  14          
+  15          typedef unsigned int uint;
+  16          typedef unsigned char uchar;
+  17          
+  18          uchar code table[10]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
+  19          uchar code pos[4] = {0xfe,0xfd,0xfb,0xf7};
+  20          
+  21          //微秒级延时
+  22          void delay_us(uint us){//进入函数，使用11us，执行一次，使用6us左右。
+  23   1              while(us>0){
+  24   2                      us--;
+  25   2              }
+  26   1      }       
+  27          
+  28          void delay(uint n)
+  29          {
+  30   1              uint i,j;
+  31   1              for(i = 0;i<114;i++)
+  32   1                      for(j=0;j<n;j++);
+  33   1      }
+  34          
+  35          bit initCmd(){
+  36   1              bit flag;
+  37   1              DQ = 1;
+  38   1              _nop_(); //一开始为高电平
+  39   1              DQ = 0;
+  40   1              delay_us(80);  //保持480us以上
+  41   1              DQ = 1;
+  42   1              delay_us(2); //释放总线后保持一段时间，约25us左右，等待器件发出存在信号。
+  43   1              flag = !DQ;  //如果存在，DQ为0，让函数返回1.    
+  44   1              delay_us(15);  //保持60us以上
+  45   1              DQ = 1;
+  46   1              _nop_();  //不使用总线的时候，都要把它拉高。给延时和开始一样，让他稳定。
+  47   1              return flag;
+  48   1      }       
+  49          
+  50          void oWireWrite(uchar cmd){
+  51   1              uint i;
+  52   1              //拉低总线至少1us，产生一个写时序。
+  53   1              //如果写入0，拉低总线60-120us,如果写1，在15us之内拉高。两次写入之间隔1us至少。
+  54   1              for(i = 0;i<8;i++){
+C51 COMPILER V9.54   PROJECT                                                               02/17/2022 15:11:22 PAGE 2   
+
+  55   2                      DQ = 0;
+  56   2                      _nop_(); //产生一个写时序。
+  57   2                      if(cmd & 0x01){
+  58   3                              //写1时序
+  59   3                              DQ = 1;  //在15us之内拉高总线
+  60   3                      }       
+  61   2                      else{
+  62   3                              DQ = 0;
+  63   3                              //写0时序
+  64   3                      }
+  65   2                      delay_us(10);
+  66   2                      cmd >>= 1;
+  67   2                      DQ = 1; //释放总线
+  68   2                      _nop_();  //两次写周期的间隔时间。
+  69   2              }       
+  70   1      }
+  71          
+  72          uchar readByteFromOWire(){
+  73   1              uchar dat = 0;
+  74   1              uchar pos = 0x01;
+  75   1              uint i;
+  76   1              for(i=0;i<8;i++){
+  77   2                      DQ = 0;
+  78   2                      _nop_();  //拉低总线至少1us。产生读时序。
+  79   2                      DQ = 1; //释放总线
+  80   2                      _nop_();  //让总线电平稳定。
+  81   2                      if(DQ){//采样
+  82   3                              dat = dat | pos; //读到了1 ,另一种用法：dat = (DQ << 7) | (dat >> 1)
+  83   3                      }
+  84   2                      //如果DQ是0就不用管了
+  85   2                      pos <<= 1;
+  86   2                      delay_us(10);  //读完后延时。一次读周期至少要60us以上。
+  87   2                      DQ = 1; //然后释放总线,准备下一次读
+  88   2                      _nop_();  //两次读周期延时
+  89   2              }
+  90   1              return dat;
+  91   1      }       
+  92          
+  93          void display(uint num){
+  94   1              uint qian,bai,shi,ge; //即最大四位数。  
+  95   1              uint i = 0;
+  96   1              qian = num / 1000; //如果qian=0，即是两位数，则第三位加小数点，否则个位加小数点
+  97   1              bai = num / 100 % 10;
+  98   1              shi = num /10 % 10;
+  99   1              ge = num % 10;
+ 100   1              
+ 101   1              //千位显示，即温度高于100的情况。
+ 102   1              P0 = 0xff;
+ 103   1              WE = 1;
+ 104   1              P0 = pos[i++];
+ 105   1              WE = 0;
+ 106   1                      
+ 107   1              DU = 1;
+ 108   1              P0 = table[qian];
+ 109   1              DU = 0;
+ 110   1              delay(2);
+ 111   1              
+ 112   1              //百位显示
+ 113   1              P0 = 0xff;
+ 114   1              WE = 1;
+ 115   1              P0 = pos[i++];
+ 116   1              WE = 0;
+C51 COMPILER V9.54   PROJECT                                                               02/17/2022 15:11:22 PAGE 3   
+
+ 117   1                      
+ 118   1              DU = 1;
+ 119   1              P0 = table[bai];
+ 120   1              DU = 0;
+ 121   1              delay(2);
+ 122   1              //十位显示
+ 123   1              P0 = 0xff;
+ 124   1              WE = 1;
+ 125   1              P0 = pos[i++];
+ 126   1              WE = 0;
+ 127   1                      
+ 128   1              DU = 1;
+ 129   1              P0 = table[shi] | 0x80;
+ 130   1              DU = 0;
+ 131   1              delay(2);
+ 132   1              
+ 133   1              //个位显示
+ 134   1              P0 = 0xff;
+ 135   1              WE = 1;
+ 136   1              P0 = pos[i++];
+ 137   1              WE = 0;
+ 138   1                      
+ 139   1              DU = 1;
+ 140   1              P0 = table[ge];
+ 141   1              DU = 0;
+ 142   1              delay(2);
+ 143   1      }
+ 144          
+ 145          void main(){
+ 146   1              //bit flag;
+ 147   1              uint temp = 0;
+ 148   1              uint lowT;
+ 149   1              uint highT; //储存温度的高低两个字节
+ 150   1              
+ 151   1              //先初始化器件
+ 152   1              //把寄存器内精度修改为12位。
+ 153   1      /*      initCmd();
+ 154   1              oWireWrite(0xcc);  //忽略ROM
+ 155   1              oWireWrite(0x4e);  //写暂存器指令，即修改配置寄存器等部分
+ 156   1              oWireWrite(0xff); //上限值
+ 157   1              oWireWrite(0x0);  //下限值
+ 158   1              oWireWrite(0x7f);  //12位模式选择
+ 159   1              initCmd(); //每次进行通讯的时候都要初始化，ROM操作指令
+ 160   1              oWireWrite(0xcc);
+ 161   1              oWireWrite(0x48);  //发送拷贝到eeprom的指令。*/
+ 162   1              while(1)
+ 163   1              {
+ 164   2                      initCmd();
+ 165   2                              //存在的情况
+ 166   2                              oWireWrite(0xcc);  //忽略ROM的操作指令
+ 167   2                              oWireWrite(0x44);  //DS18B20的温度转换指令
+ 168   2                              //发送温度转换指令之后，要再次复位。即主机和器件进行任何通信之前都要进行初始化
+ 169   2                              initCmd();
+ 170   2                              //读取暂存器的内容（即刚刚转换好的温度）
+ 171   2                              oWireWrite(0xcc);  //忽略ROM指令
+ 172   2                              oWireWrite(0xbe);  //读取暂存器。这个时候18B20会开始返回暂存器内的值。
+ 173   2                              lowT = readByteFromOWire();
+ 174   2                              highT = readByteFromOWire();  //从第0个字节开始读。这里只读前两个字节
+ 175   2                              temp = (highT * 256 ) | lowT;
+ 176   2                              temp = (temp * 0.0625 + 0.05 ) * 10;  //得到温度值,四舍五入保留一位小数
+ 177   2                              //然后用数码管显示temp。temp最后一位为小数部分。
+ 178   2                              display(temp);          
+C51 COMPILER V9.54   PROJECT                                                               02/17/2022 15:11:22 PAGE 4   
+
+ 179   2              }
+ 180   1      }       
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    587    ----
+   CONSTANT SIZE    =     14    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      16
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
