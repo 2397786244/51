@@ -1,0 +1,124 @@
+C51 COMPILER V9.54   IR_2                                                                  03/26/2022 13:13:17 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE IR_2
+OBJECT MODULE PLACED IN .\Objects\IR_2.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE IR_2.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\IR_2.l
+                    -st) OBJECT(.\Objects\IR_2.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          
+   3          typedef unsigned int uint;
+   4          typedef unsigned char uchar;
+   5          
+   6          bit IR_DECODE_OK; //红外解码完成
+   7          bit IR_OK; //红外接收完成。
+   8          uchar IR_DATA[33];  //储存一位引导码，16位用户码和16位键值码
+   9          uchar IR_BYTE[4]; //储存红外数据分离出来的四个字节。
+  10          uint IR_TIME;
+  11          
+  12          //定时器初始化。外部中断，串口设置
+  13          void Init(){
+  14   1              EA = 1;
+  15   1              TMOD = 0x22; //八位自动重装模式。
+  16   1              TL0 = 0;
+  17   1              TH0 = 0; //定时器0溢出时间为277.76us。
+  18   1              ET0 = 1; //定时器中断。
+  19   1              TR0 = 1;//定时器启动。
+  20   1              
+  21   1              //外部中断0设置
+  22   1              IT0 = 1; //选择跳变沿触发方式，引脚从高电平到低电平有效。
+  23   1              EX0 = 1; //外部中断0允许位。
+  24   1              
+  25   1              TL1 = 0xfd;
+  26   1              TH1 = 0xfd; //设置9600波特率。
+  27   1              SM0 = 0;
+  28   1              SM1 = 1;
+  29   1              TR1 = 1;
+  30   1      }
+  31          
+  32          void time0() interrupt 1{
+  33   1              IR_TIME++; //每次中断需要256个机器周期。
+  34   1      }
+  35          
+  36          void getIRData() interrupt 0{
+  37   1              static uint i;
+  38   1              static bit flag;
+  39   1              if(flag)
+  40   1                      {
+  41   2                      //判断一开始接收到的是否为起始码。是则从数组首开始存。
+  42   2                      if((IR_TIME >= 32)&& (IR_TIME < 53)) //8.8ms-14.5ms
+  43   2                      {
+  44   3                              i = 0;
+  45   3                      }
+  46   2                      IR_DATA[i] = IR_TIME; //把溢出次数储存。
+  47   2                      i++;
+  48   2                      IR_TIME = 0;
+  49   2                      if(33 == i)
+  50   2                      {
+  51   3                              IR_OK = 1;
+  52   3                              i = 0; //已经储存完33位数据。
+  53   3                              flag = 0;
+  54   3                      }
+C51 COMPILER V9.54   IR_2                                                                  03/26/2022 13:13:17 PAGE 2   
+
+  55   2              }
+  56   1              else{
+  57   2                      flag = 1;
+  58   2                      IR_TIME = 0;
+  59   2              }
+  60   1      }       
+  61          int getIRDecode(){
+  62   1              uint i ,j , k = 1; //k是数组下标。跳过引导码。
+  63   1              for(i = 0;i<4;i++){
+  64   2                      for(j = 0;j<8;j++){
+  65   3                              if(IR_DATA[k] > 5){
+  66   4                                      //这位数据为1.
+  67   4                                      IR_BYTE[i] |= 0x80;
+  68   4                              }
+  69   3                              if(j < 7)                       
+  70   3                                      IR_BYTE[i] >>= 1;
+  71   3                              k++;
+  72   3                      }
+  73   2              }
+  74   1              IR_DECODE_OK = 1;
+  75   1              return 0;
+  76   1      }       
+  77          int main(){
+  78   1              uint i;
+  79   1              Init();
+  80   1              while(1){
+  81   2                      if(IR_OK)
+  82   2                      {
+  83   3                              getIRDecode();
+  84   3                              IR_OK = 0;
+  85   3                              if(IR_DECODE_OK)
+  86   3                              { //解码完成，串口发送结果。
+  87   4                                      for(i = 0;i<4;i++){
+  88   5                                              SBUF = IR_BYTE[i];
+  89   5                                              while(!TI);
+  90   5                                              TI = 0;
+  91   5                                      }
+  92   4                                      IR_DECODE_OK = 0;
+  93   4                              }
+  94   3                      }
+  95   2              }
+  96   1              return 0;
+  97   1      }       
+*** WARNING C294 IN LINE 96 OF IR_2.c: unreachable code
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    267    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     41       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      3    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

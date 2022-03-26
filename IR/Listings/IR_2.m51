@@ -1,0 +1,209 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        03/26/2022  13:13:17  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL5\C51\BIN\BL51.EXE .\Objects\IR_2.obj TO .\Objects\IR_2 PRINT (.\Listings\IR_2.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\IR_2.obj (IR_2)
+  D:\KEIL5\C51\LIB\C51S.LIB (?C_STARTUP)
+
+
+LINK MAP OF MODULE:  .\Objects\IR_2 (IR_2)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0002H     UNIT         _DATA_GROUP_
+                    000AH     0016H                  *** GAP ***
+            BIT     0020H.0   0000H.3   UNIT         ?BI?IR_2
+                    0020H.3   0000H.5                *** GAP ***
+            DATA    0021H     0029H     UNIT         ?DT?IR_2
+            IDATA   004AH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0003H     ABSOLUTE     
+                    0006H     0005H                  *** GAP ***
+            CODE    000BH     0003H     ABSOLUTE     
+            CODE    000EH     005BH     UNIT         ?PR?GETIRDATA?IR_2
+            CODE    0069H     0058H     UNIT         ?PR?GETIRDECODE?IR_2
+            CODE    00C1H     002CH     UNIT         ?PR?MAIN?IR_2
+            CODE    00EDH     001FH     UNIT         ?PR?INIT?IR_2
+            CODE    010CH     000DH     UNIT         ?PR?TIME0?IR_2
+            CODE    0119H     000CH     UNIT         ?C_C51STARTUP
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\IR_2 (IR_2)
+
+
+SEGMENT                          DATA_GROUP 
+  +--> CALLED SEGMENT          START    LENGTH
+----------------------------------------------
+?C_C51STARTUP                  -----    -----
+  +--> ?PR?MAIN?IR_2
+
+?PR?MAIN?IR_2                  -----    -----
+  +--> ?PR?INIT?IR_2
+  +--> ?PR?GETIRDECODE?IR_2
+
+?PR?GETIRDECODE?IR_2           0008H    0002H
+
+
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      03/26/2022  13:13:17  PAGE 2
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\IR_2 (IR_2)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        IR_2
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  D:00A8H         PUBLIC        IE
+  C:00EDH         PUBLIC        Init
+  B:0020H.1       PUBLIC        IR_OK
+  D:0023H         PUBLIC        IR_DATA
+  D:00B8H         PUBLIC        IP
+  B:0020H.2       PUBLIC        IR_DECODE_OK
+  B:0098H.1       PUBLIC        TI
+  C:0069H         PUBLIC        getIRDecode
+  C:00C1H         PUBLIC        main
+  D:0044H         PUBLIC        IR_TIME
+  D:0046H         PUBLIC        IR_BYTE
+  D:0099H         PUBLIC        SBUF
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  B:00A8H.1       PUBLIC        ET0
+  D:008CH         PUBLIC        TH0
+  B:00A8H.0       PUBLIC        EX0
+  B:0088H.0       PUBLIC        IT0
+  D:008DH         PUBLIC        TH1
+  B:0098H.7       PUBLIC        SM0
+  D:008AH         PUBLIC        TL0
+  B:0098H.6       PUBLIC        SM1
+  D:008BH         PUBLIC        TL1
+  B:0088H.4       PUBLIC        TR0
+  B:0088H.6       PUBLIC        TR1
+  C:000EH         PUBLIC        getIRData
+  C:010CH         PUBLIC        time0
+  D:00C8H         PUBLIC        T2CON
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          INIT
+  C:00EDH         LINE#         13
+  C:00EDH         LINE#         14
+  C:00EFH         LINE#         15
+  C:00F2H         LINE#         16
+  C:00F5H         LINE#         17
+  C:00F7H         LINE#         18
+  C:00F9H         LINE#         19
+  C:00FBH         LINE#         22
+  C:00FDH         LINE#         23
+  C:00FFH         LINE#         25
+  C:0102H         LINE#         26
+  C:0105H         LINE#         27
+  C:0107H         LINE#         28
+  C:0109H         LINE#         29
+  C:010BH         LINE#         30
+  -------         ENDPROC       INIT
+BL51 BANKED LINKER/LOCATER V6.22                                                      03/26/2022  13:13:17  PAGE 3
+
+
+  -------         PROC          TIME0
+  C:010CH         LINE#         32
+  C:010EH         LINE#         33
+  C:0116H         LINE#         34
+  -------         ENDPROC       TIME0
+  -------         PROC          GETIRDATA
+  -------         DO            
+  D:0021H         SYMBOL        i
+  B:0020H.0       SYMBOL        flag
+  -------         ENDDO         
+  C:000EH         LINE#         36
+  C:0017H         LINE#         39
+  C:001AH         LINE#         40
+  C:001AH         LINE#         42
+  C:002FH         LINE#         43
+  C:002FH         LINE#         44
+  C:0035H         LINE#         45
+  C:0035H         LINE#         46
+  C:003CH         LINE#         47
+  C:0044H         LINE#         48
+  C:004AH         LINE#         49
+  C:0050H         LINE#         50
+  C:0050H         LINE#         51
+  C:0052H         LINE#         52
+  C:0056H         LINE#         53
+  C:0058H         LINE#         54
+  C:0058H         LINE#         55
+  C:005AH         LINE#         56
+  C:005AH         LINE#         57
+  C:005CH         LINE#         58
+  C:0062H         LINE#         59
+  C:0062H         LINE#         60
+  -------         ENDPROC       GETIRDATA
+  -------         PROC          GETIRDECODE
+  -------         DO            
+  D:0006H         SYMBOL        i
+  D:0004H         SYMBOL        j
+  D:0008H         SYMBOL        k
+  -------         ENDDO         
+  C:0069H         LINE#         61
+  C:0069H         LINE#         62
+  C:006FH         LINE#         63
+  C:0072H         LINE#         64
+  C:0075H         LINE#         65
+  C:0080H         LINE#         67
+  C:0088H         LINE#         68
+  C:0088H         LINE#         69
+  C:0091H         LINE#         70
+  C:009DH         LINE#         71
+  C:00A5H         LINE#         72
+  C:00B0H         LINE#         73
+  C:00BBH         LINE#         74
+  C:00BDH         LINE#         75
+  C:00C0H         LINE#         76
+  -------         ENDPROC       GETIRDECODE
+  -------         PROC          MAIN
+  -------         DO            
+BL51 BANKED LINKER/LOCATER V6.22                                                      03/26/2022  13:13:17  PAGE 4
+
+
+  D:0006H         SYMBOL        i
+  -------         ENDDO         
+  C:00C1H         LINE#         77
+  C:00C1H         LINE#         79
+  C:00C4H         LINE#         80
+  C:00C4H         LINE#         81
+  C:00C7H         LINE#         82
+  C:00C7H         LINE#         83
+  C:00CAH         LINE#         84
+  C:00CCH         LINE#         85
+  C:00CFH         LINE#         86
+  C:00CFH         LINE#         87
+  C:00D2H         LINE#         88
+  C:00D9H         LINE#         89
+  C:00DCH         LINE#         90
+  C:00DEH         LINE#         91
+  C:00E9H         LINE#         92
+  C:00EBH         LINE#         93
+  C:00EBH         LINE#         94
+  C:00EBH         LINE#         95
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        IR_2
+
+Program Size: data=52.3 xdata=0 code=288
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)
