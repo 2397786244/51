@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   PROJECT                                                               03/29/2022 21:06:11 PAGE 1   
+C51 COMPILER V9.54   PROJECT                                                               03/29/2022 22:11:50 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE PROJECT
@@ -45,8 +45,8 @@ line level    source
   35   1              ET0 = 1;//定时器0允许中断
   36   1              TR0 = 1; //定时器启动
   37   1              TMOD = 0x01; //16位模式，使用定时器0
-  38   1              TH0 = 0xd5;
-  39   1              TL0 = 0x9e;   //定时10ms，每10ms检查一下数字并显示。
+  38   1              TH0 = 0xb7;
+  39   1              TL0 = 0xff;   //定时20ms，每20ms检查一下数字并显示。
   40   1              ET1 = 1;
   41   1              TR1 = 1;
   42   1              TMOD |= 0x10;
@@ -55,14 +55,14 @@ line level    source
   45   1      }       
   46          
   47          void numDisplay() interrupt 1{
-  48   1              TH0 = 0xd5;
-  49   1              TL0 = 0x9e;
+  48   1              TH0 = 0xb7;
+  49   1              TL0 = 0xff;
   50   1              setPointer(x,y);//在光标指定位置显示一个数字。
   51   1              writeData(' ');
   52   1              setPointer(x,y);
   53   1              writeData('0' + value);
   54   1      }
-C51 COMPILER V9.54   PROJECT                                                               03/29/2022 21:06:11 PAGE 2   
+C51 COMPILER V9.54   PROJECT                                                               03/29/2022 22:11:50 PAGE 2   
 
   55          
   56          void timer1() interrupt 3{
@@ -126,7 +126,7 @@ line level    source
  114   2              }
  115   1      }       
  116          
-C51 COMPILER V9.54   PROJECT                                                               03/29/2022 21:06:11 PAGE 3   
+C51 COMPILER V9.54   PROJECT                                                               03/29/2022 22:11:50 PAGE 3   
 
  117          //数据指针移动函数
  118          void setPointer(uint x,uint y){
@@ -190,60 +190,74 @@ line level    source
  176   3                              while(!S5);
  177   3                      }
  178   2              }
-C51 COMPILER V9.54   PROJECT                                                               03/29/2022 21:06:11 PAGE 4   
+C51 COMPILER V9.54   PROJECT                                                               03/29/2022 22:11:50 PAGE 4   
 
  179   1      }
  180          
- 181          int main(){
- 182   1              uint answer = 0;
- 183   1              lcdInit();
- 184   1              timerInit();
- 185   1              setPointer(1,0);
- 186   1              expGenerate('*');
- 187   1              answer = n1 * n2;
- 188   1              while(1)
- 189   1              {
- 190   2                      if(cnt == 3000) //每道题目显示15秒钟。
- 191   2                      {
- 192   3                              //检查上一题答案。
- 193   3                              for(i = 0;i<4;i++)
- 194   3                              {
- 195   4                                      num = num * 10 + numar[i];
- 196   4                              }
- 197   3                              //结果反馈。
- 198   3                              if(num == answer)
- 199   3                                      {
- 200   4                                      setPointer(2,0);
- 201   4                                      stringSend("RIGHT!");
- 202   4                                      }
- 203   3                              else{
- 204   4                                      setPointer(2,0);
- 205   4                                      stringSend("WRONG!");
- 206   4                                      }
- 207   3                              delay(3000);
- 208   3                              writeCmd(0x01);
- 209   3                              //答应下一题.
- 210   3                              setPointer(1,0);
- 211   3                              expGenerate('*');
- 212   3                              answer = n1 * n2;
- 213   3                              num = 0;
- 214   3                              //value = 0;
- 215   3                              cnt = 0;
- 216   3                              y = 12;
- 217   3                      }
- 218   2                      keyScan();
- 219   2              }
- 220   1              return 0;
- 221   1      }       
-*** WARNING C294 IN LINE 220 OF project.c: unreachable code
+ 181          void clear(){
+ 182   1              uint i,j;
+ 183   1              for(i = 0;i<2;i++){
+ 184   2                      for(j = 0;j<16;j++)
+ 185   2                      {
+ 186   3                              setPointer(i+1,j);
+ 187   3                              writeData(' ');
+ 188   3                      }
+ 189   2              }
+ 190   1              
+ 191   1      
+ 192   1      }
+ 193          int main(){
+ 194   1              uint answer = 0;
+ 195   1              lcdInit();
+ 196   1              timerInit();
+ 197   1              setPointer(1,0);
+ 198   1              expGenerate('*');
+ 199   1              answer = n1 * n2;
+ 200   1              while(1)
+ 201   1              {
+ 202   2                      if(cnt == 3000) //每道题目显示15秒钟。
+ 203   2                      {
+ 204   3                              //检查上一题答案。
+ 205   3                              for(i = 0;i<4;i++)
+ 206   3                              {
+ 207   4                                      num = num * 10 + numar[i];
+ 208   4                              }
+ 209   3                              //结果反馈。
+ 210   3                              if(num == answer)
+ 211   3                                      {
+ 212   4                                      setPointer(2,0);
+ 213   4                                      stringSend("RIGHT!");
+ 214   4                                      }
+ 215   3                              else
+ 216   3                                      {
+ 217   4                                      setPointer(2,0);
+ 218   4                                      stringSend("WRONG!");
+ 219   4                                      }
+ 220   3                              num = 0;
+ 221   3                              delay(3000);    
+ 222   3                              clear();
+ 223   3                              setPointer(1,0);
+ 224   3                              //答应下一题.
+ 225   3                              expGenerate('*');
+ 226   3                              answer = n1 * n2;
+ 227   3                              value = 0;
+ 228   3                              cnt = 0;
+ 229   3                      }
+ 230   2                      keyScan();
+ 231   2              }
+ 232   1              return 0;
+ 233   1      }       
+*** WARNING C294 IN LINE 232 OF project.c: unreachable code
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    764    ----
+   CODE SIZE        =    818    ----
    CONSTANT SIZE    =     27    ----
    XDATA SIZE       =   ----    ----
+C51 COMPILER V9.54   PROJECT                                                               03/29/2022 22:11:50 PAGE 5   
+
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =     26      26
+   DATA SIZE        =     26      28
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

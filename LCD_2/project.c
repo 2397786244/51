@@ -35,8 +35,8 @@ void timerInit()
 	ET0 = 1;//定时器0允许中断
 	TR0 = 1; //定时器启动
 	TMOD = 0x01; //16位模式，使用定时器0
-	TH0 = 0xd5;
-	TL0 = 0x9e;   //定时10ms，每10ms检查一下数字并显示。
+	TH0 = 0xb7;
+	TL0 = 0xff;   //定时20ms，每20ms检查一下数字并显示。
 	ET1 = 1;
 	TR1 = 1;
 	TMOD |= 0x10;
@@ -45,8 +45,8 @@ void timerInit()
 }	
 
 void numDisplay() interrupt 1{
-	TH0 = 0xd5;
-	TL0 = 0x9e;
+	TH0 = 0xb7;
+	TL0 = 0xff;
 	setPointer(x,y);//在光标指定位置显示一个数字。
 	writeData(' ');
 	setPointer(x,y);
@@ -178,6 +178,18 @@ void keyScan(){
 	}
 }
 
+void clear(){
+	uint i,j;
+	for(i = 0;i<2;i++){
+		for(j = 0;j<16;j++)
+		{
+			setPointer(i+1,j);
+			writeData(' ');
+		}
+	}
+	
+
+}
 int main(){
 	uint answer = 0;
 	lcdInit();
@@ -200,20 +212,20 @@ int main(){
 				setPointer(2,0);
 				stringSend("RIGHT!");
 				}
-			else{
+			else
+				{
 				setPointer(2,0);
 				stringSend("WRONG!");
 				}
-			delay(3000);
-			writeCmd(0x01);
-			//答应下一题.
+			num = 0;
+			delay(3000);	
+			clear();
 			setPointer(1,0);
+			//答应下一题.
 			expGenerate('*');
 			answer = n1 * n2;
-			num = 0;
-			//value = 0;
+			value = 0;
 			cnt = 0;
-			y = 12;
 		}
 		keyScan();
 	}
