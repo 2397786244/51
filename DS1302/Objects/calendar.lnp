@@ -1,0 +1,3 @@
+".\Objects\project.obj" 
+TO ".\Objects\calendar" 
+PRINT(".\Listings\calendar.m51") RAMSIZE(256) 

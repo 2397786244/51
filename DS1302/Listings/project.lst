@@ -1,0 +1,224 @@
+C51 COMPILER V9.54   PROJECT                                                               04/01/2022 21:00:44 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE PROJECT
+OBJECT MODULE PLACED IN .\Objects\project.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE project.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\pro
+                    -ject.lst) OBJECT(.\Objects\project.obj)
+
+line level    source
+
+   1          /*写一个字节数据，读。BCD码
+   2          转换 关闭，打开写保护。
+   3          设置日历寄存器（初始显示时间），读取时钟日历。 LCD 显示日历*/
+   4          #include <reg52.h>
+   5          #define READ_START_ADDR 0x81
+   6          
+   7          sbit SCLK = P1^1;
+   8          sbit IO = P1^2;
+   9          sbit CE = P1^3;
+  10          sbit RS = P3^5; //数据，命令端
+  11          sbit RW = P3^6; //读，写
+  12          sbit EN = P3^4; //使能端
+  13          typedef unsigned char uchar;
+  14          typedef unsigned int uint;
+  15          
+  16          uchar CALENDAR_DATA[7] = {20,50,5,14,7,1,22};
+  17          
+  18          void sendByte(uchar dat){
+  19   1              uint i;
+  20   1              for(i = 0;i<8;i++){
+  21   2                      SCLK = 0;
+  22   2                      IO = dat & 0x01;
+  23   2                      SCLK = 1;
+  24   2                      dat >>= 1;
+  25   2              }
+  26   1      }
+  27          
+  28          uchar readByte(){
+  29   1              uint i;
+  30   1              uchar dat;
+  31   1              for(i = 0;i<8;i++){
+  32   2                      SCLK = 0;
+  33   2                      dat >>= 1;              
+  34   2                      if(IO){
+  35   3                              dat |= 0x80;
+  36   3                      }
+  37   2                      SCLK = 1;       
+  38   2              }
+  39   1              return dat;
+  40   1      }
+  41          
+  42          //一字节数据读取
+  43          uchar sRead(uchar cmd){
+  44   1              uchar dat;
+  45   1              uint i;
+  46   1              CE = 0;
+  47   1              SCLK = 0;
+  48   1              CE = 1; //上升沿读取数据
+  49   1              sendByte(cmd);
+  50   1              dat = readByte();
+  51   1              return dat;
+  52   1      }
+*** WARNING C280 IN LINE 45 OF project.c: 'i': unreferenced local variable
+  53          
+C51 COMPILER V9.54   PROJECT                                                               04/01/2022 21:00:44 PAGE 2   
+
+  54          //一字节数据写入
+  55          void sWrite(uchar cmd,uchar dat)
+  56          {
+  57   1              uint i;
+  58   1              CE = 0;
+  59   1              SCLK = 0;
+  60   1              CE = 1; //在上升沿开始写入数据
+  61   1              sendByte(cmd);
+  62   1              sendByte(dat);
+  63   1              SCLK = 1; //拉高释放总线
+  64   1              CE = 0;
+  65   1      }
+*** WARNING C280 IN LINE 57 OF project.c: 'i': unreferenced local variable
+  66          
+  67          //bcd还原
+  68          uchar bcdToD(uchar bcd){
+  69   1              uchar dat1,dat2;
+  70   1              dat2 = bcd  % 16; //个位
+  71   1              dat1 = bcd / 16; //十位
+  72   1              return dat1 * 10 + dat2;
+  73   1      }
+  74          
+  75          //转换为BCD码。
+  76          uchar dToBCD(uchar dat){
+  77   1              uchar bcd;
+  78   1              bcd = dat / 10 * 16 + dat % 10; 
+  79   1              return bcd;
+  80   1      }
+  81          
+  82          //设置写保护，1打开。
+  83          void writeOpen(uint flag){
+  84   1              if(flag){
+  85   2                      //第八块寄存器设置。
+  86   2                      sWrite(0x8e,1);
+  87   2              }
+  88   1              else{
+  89   2                      sWrite(0x8e,0); //关闭写保护
+  90   2              }
+  91   1      }
+  92          
+  93          void calendarInit(){
+  94   1              //设置初始时间。写保护关闭。
+  95   1              //设置时间为2022 7 14  5:50:20
+  96   1              uchar addr = 0x80;
+  97   1              uint i;
+  98   1              writeOpen(0);
+  99   1              for(i = 0;i<7;i++){
+ 100   2                      sWrite(addr,dToBCD(CALENDAR_DATA[i]));
+ 101   2                      addr+=2;
+ 102   2              }
+ 103   1              writeOpen(1);
+ 104   1      }
+ 105          
+ 106          
+ 107          //判断液晶屏是否空闲
+ 108          void readStates(){
+ 109   1              uchar flag = 0;
+ 110   1              P0 = 0xff; //把P0寄存器（即D0-D7）拉高。
+ 111   1              RS = 0;  //指令选择
+ 112   1              RW = 1;  //读选择
+ 113   1              do{
+ 114   2                      EN = 1;  //使能
+C51 COMPILER V9.54   PROJECT                                                               04/01/2022 21:00:44 PAGE 3   
+
+ 115   2                      flag = P0;  //把数据口赋值给flag，判断flag第八位(D7)是否为0，为0则空闲退出循环。
+ 116   2                      EN = 0;
+ 117   2              }while(flag & 0x80);
+ 118   1      }
+ 119          
+ 120          void lcdWriteCmd(uchar cmd){
+ 121   1              //每次发出指令前判断器件是否空闲
+ 122   1              readStates();
+ 123   1              RS = 0;
+ 124   1              RW = 0;
+ 125   1              P0 = cmd;
+ 126   1              EN = 1;
+ 127   1              EN = 0;//指令发送完之后拉低。两次使能信号改变语句之间间隔在时序规定的最大值之内
+ 128   1      }       
+ 129          
+ 130          void lcdWriteData(uchar dat){
+ 131   1              readStates();
+ 132   1              RS = 1;  //选择数据
+ 133   1              RW = 0;  //写
+ 134   1              P0 = dat; 
+ 135   1              EN = 1;
+ 136   1              EN = 0;//使能保持150ns
+ 137   1      }
+ 138          
+ 139          void lcdWriteString(uchar dat)
+ 140          {
+ 141   1              lcdWriteData('0' + dat / 10);
+ 142   1              lcdWriteData('0' + dat % 10);
+ 143   1      }
+ 144          
+ 145          void lcdInit(){
+ 146   1              lcdWriteCmd(0x38);
+ 147   1              lcdWriteCmd(0x0c);
+ 148   1              lcdWriteCmd(0x06);
+ 149   1              lcdWriteCmd(0x01);
+ 150   1      }
+ 151          
+ 152          void calendarRead(){
+ 153   1              uint i;
+ 154   1              uchar addr = READ_START_ADDR;
+ 155   1              for(i = 0;i<7;i++){
+ 156   2                      CALENDAR_DATA[i] = bcdToD(sRead(addr));
+ 157   2                      addr += 2;
+ 158   2              }
+ 159   1      }
+ 160          void lcdSet(){
+ 161   1              //把年月日，小时，分钟，秒显示在LCD上。
+ 162   1              lcdWriteCmd(0x80);      
+ 163   1              lcdWriteString(CALENDAR_DATA[6]); //year
+ 164   1              lcdWriteCmd(0x82);
+ 165   1              lcdWriteString(CALENDAR_DATA[5]); //week
+ 166   1              lcdWriteCmd(0x84);
+ 167   1              lcdWriteString(CALENDAR_DATA[4]); //month
+ 168   1              lcdWriteCmd(0x86);
+ 169   1              lcdWriteString(CALENDAR_DATA[3]); // day
+ 170   1              lcdWriteCmd(0x80 | 0x40);
+ 171   1              lcdWriteString(CALENDAR_DATA[2]); //hour
+ 172   1              lcdWriteCmd(0x80 | 0x42);
+ 173   1              lcdWriteString(CALENDAR_DATA[1]); //minute
+ 174   1              lcdWriteCmd(0x80 | 0x44);
+ 175   1              lcdWriteString(CALENDAR_DATA[0]);
+ 176   1      }
+C51 COMPILER V9.54   PROJECT                                                               04/01/2022 21:00:44 PAGE 4   
+
+ 177          
+ 178          void main(){
+ 179   1              uint i;
+ 180   1              calendarInit();
+ 181   1              lcdInit();
+ 182   1              while(1)
+ 183   1              {
+ 184   2                      writeOpen(0);
+ 185   2                      calendarRead();
+ 186   2                      lcdSet();
+ 187   2                      for(i = 0;i<1000;i++);
+ 188   2                      writeOpen(1); //时钟开始从2022年7月14日 5点50分20秒开始计时。
+ 189   2              }
+ 190   1      }       
+ 191          
+ 192          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    421    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      7       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  2 WARNING(S),  0 ERROR(S)
