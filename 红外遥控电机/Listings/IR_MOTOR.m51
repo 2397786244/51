@@ -1,0 +1,227 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        04/13/2022  22:48:44  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL5\C51\BIN\BL51.EXE .\Objects\IR_MOTOR.obj TO .\Objects\IR_MOTOR PRINT (.\Listings\IR_MOTOR.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\IR_MOTOR.obj (IR_MOTOR)
+  D:\KEIL5\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL5\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  .\Objects\IR_MOTOR (IR_MOTOR)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0002H     UNIT         _DATA_GROUP_
+                    000AH     0016H                  *** GAP ***
+            BIT     0020H.0   0000H.3   UNIT         ?BI?IR_MOTOR
+                    0020H.3   0000H.5                *** GAP ***
+            DATA    0021H     002CH     UNIT         ?DT?IR_MOTOR
+            IDATA   004DH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0003H     ABSOLUTE     
+                    0006H     0005H                  *** GAP ***
+            CODE    000BH     0003H     ABSOLUTE     
+            CODE    000EH     000DH     UNIT         ?PR?TIME0?IR_MOTOR
+            CODE    001BH     0003H     ABSOLUTE     
+            CODE    001EH     008CH     UNIT         ?C_C51STARTUP
+            CODE    00AAH     005BH     UNIT         ?PR?GETIRDATA?IR_MOTOR
+            CODE    0105H     0056H     UNIT         ?PR?GETIRDECODE?IR_MOTOR
+            CODE    015BH     0047H     UNIT         ?PR?IR_PRESS_JUDGE?IR_MOTOR
+            CODE    01A2H     0022H     UNIT         ?PR?INIT?IR_MOTOR
+            CODE    01C4H     0019H     UNIT         ?PR?TIME1?IR_MOTOR
+            CODE    01DDH     0010H     UNIT         ?PR?MAIN?IR_MOTOR
+            CODE    01EDH     0007H     UNIT         ?C_INITSEG
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\IR_MOTOR (IR_MOTOR)
+
+
+SEGMENT                               DATA_GROUP 
+  +--> CALLED SEGMENT               START    LENGTH
+---------------------------------------------------
+?C_C51STARTUP                       -----    -----
+  +--> ?PR?MAIN?IR_MOTOR
+  +--> ?C_INITSEG
+
+?PR?MAIN?IR_MOTOR                   -----    -----
+  +--> ?PR?INIT?IR_MOTOR
+BL51 BANKED LINKER/LOCATER V6.22                                                      04/13/2022  22:48:44  PAGE 2
+
+
+  +--> ?PR?GETIRDECODE?IR_MOTOR
+  +--> ?PR?IR_PRESS_JUDGE?IR_MOTOR
+
+?PR?GETIRDECODE?IR_MOTOR            0008H    0002H
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\IR_MOTOR (IR_MOTOR)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        IR_MOTOR
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  D:00A8H         PUBLIC        IE
+  C:01A2H         PUBLIC        Init
+  B:0020H.1       PUBLIC        IR_OK
+  D:0023H         PUBLIC        IR_DATA
+  D:00B8H         PUBLIC        IP
+  B:0020H.2       PUBLIC        IR_DECODE_OK
+  C:0105H         PUBLIC        getIRDecode
+  C:01DDH         PUBLIC        main
+  D:0044H         PUBLIC        NOW_STATES
+  D:0045H         PUBLIC        IR_TIME
+  D:0047H         PUBLIC        IR_BYTE
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  D:004BH         PUBLIC        pwm_length
+  B:00A8H.1       PUBLIC        ET0
+  B:00A8H.3       PUBLIC        ET1
+  D:008CH         PUBLIC        TH0
+  B:00A8H.0       PUBLIC        EX0
+  B:0088H.0       PUBLIC        IT0
+  D:008DH         PUBLIC        TH1
+  D:008AH         PUBLIC        TL0
+  D:008BH         PUBLIC        TL1
+  D:004CH         PUBLIC        pwm
+  B:0088H.4       PUBLIC        TR0
+  B:0088H.6       PUBLIC        TR1
+  B:0090H.0       PUBLIC        AIN
+  C:00AAH         PUBLIC        getIRData
+  C:015BH         PUBLIC        IR_Press_Judge
+  C:000EH         PUBLIC        time0
+  C:01C4H         PUBLIC        time1
+  D:00C8H         PUBLIC        T2CON
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          INIT
+  C:01A2H         LINE#         21
+  C:01A2H         LINE#         22
+  C:01A4H         LINE#         23
+  C:01A7H         LINE#         24
+  C:01AAH         LINE#         25
+  C:01ACH         LINE#         26
+BL51 BANKED LINKER/LOCATER V6.22                                                      04/13/2022  22:48:44  PAGE 3
+
+
+  C:01AEH         LINE#         27
+  C:01B0H         LINE#         29
+  C:01B2H         LINE#         30
+  C:01B4H         LINE#         31
+  C:01B7H         LINE#         32
+  C:01BDH         LINE#         33
+  C:01BFH         LINE#         34
+  C:01C1H         LINE#         36
+  C:01C3H         LINE#         38
+  -------         ENDPROC       INIT
+  -------         PROC          TIME0
+  C:000EH         LINE#         40
+  C:0010H         LINE#         41
+  C:0018H         LINE#         42
+  -------         ENDPROC       TIME0
+  -------         PROC          TIME1
+  C:01C4H         LINE#         44
+  C:01C8H         LINE#         45
+  C:01CAH         LINE#         46
+  C:01CFH         LINE#         47
+  C:01D1H         LINE#         48
+  C:01D1H         LINE#         49
+  C:01D6H         LINE#         50
+  C:01D8H         LINE#         51
+  C:01D8H         LINE#         52
+  -------         ENDPROC       TIME1
+  -------         PROC          GETIRDATA
+  -------         DO            
+  D:0021H         SYMBOL        i
+  B:0020H.0       SYMBOL        flag
+  -------         ENDDO         
+  C:00AAH         LINE#         54
+  C:00B3H         LINE#         57
+  C:00B6H         LINE#         58
+  C:00B6H         LINE#         60
+  C:00CBH         LINE#         61
+  C:00CBH         LINE#         62
+  C:00D1H         LINE#         63
+  C:00D1H         LINE#         64
+  C:00D8H         LINE#         65
+  C:00E0H         LINE#         66
+  C:00E6H         LINE#         67
+  C:00ECH         LINE#         68
+  C:00ECH         LINE#         69
+  C:00EEH         LINE#         70
+  C:00F2H         LINE#         71
+  C:00F4H         LINE#         72
+  C:00F4H         LINE#         73
+  C:00F6H         LINE#         74
+  C:00F6H         LINE#         75
+  C:00F8H         LINE#         76
+  C:00FEH         LINE#         77
+  C:00FEH         LINE#         78
+  -------         ENDPROC       GETIRDATA
+  -------         PROC          GETIRDECODE
+  -------         DO            
+  D:0006H         SYMBOL        i
+BL51 BANKED LINKER/LOCATER V6.22                                                      04/13/2022  22:48:44  PAGE 4
+
+
+  D:0004H         SYMBOL        j
+  D:0008H         SYMBOL        k
+  -------         ENDDO         
+  C:0105H         LINE#         79
+  C:0105H         LINE#         80
+  C:010BH         LINE#         81
+  C:010EH         LINE#         82
+  C:0111H         LINE#         83
+  C:011CH         LINE#         85
+  C:0124H         LINE#         86
+  C:0124H         LINE#         87
+  C:012DH         LINE#         88
+  C:0139H         LINE#         89
+  C:0141H         LINE#         90
+  C:014CH         LINE#         91
+  C:0157H         LINE#         92
+  C:015AH         LINE#         93
+  -------         ENDPROC       GETIRDECODE
+  -------         PROC          IR_PRESS_JUDGE
+  C:015BH         LINE#         95
+  C:015BH         LINE#         96
+  C:016DH         LINE#         97
+  C:0179H         LINE#         98
+  C:0189H         LINE#         99
+  C:0194H         LINE#         100
+  C:01A1H         LINE#         101
+  C:01A1H         LINE#         102
+  -------         ENDPROC       IR_PRESS_JUDGE
+  -------         PROC          MAIN
+  C:01DDH         LINE#         103
+  C:01DDH         LINE#         104
+  C:01E0H         LINE#         105
+  C:01E0H         LINE#         106
+  C:01E3H         LINE#         107
+  C:01E5H         LINE#         108
+  C:01E8H         LINE#         109
+  C:01EBH         LINE#         110
+  C:01EBH         LINE#         111
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        IR_MOTOR
+
+Program Size: data=55.3 xdata=0 code=495
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

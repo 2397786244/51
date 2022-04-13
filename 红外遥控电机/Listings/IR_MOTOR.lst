@@ -1,0 +1,140 @@
+C51 COMPILER V9.54   IR_MOTOR                                                              04/13/2022 22:48:43 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE IR_MOTOR
+OBJECT MODULE PLACED IN .\Objects\IR_MOTOR.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE IR_MOTOR.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\IR
+                    -_MOTOR.lst) OBJECT(.\Objects\IR_MOTOR.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          /* 遥控板 45 打开电机，47关闭电机 。 40 减速， 44 加速 */
+   3          typedef unsigned char uchar;
+   4          typedef unsigned int uint;
+   5          
+   6          sbit AIN = P1^0;
+   7          //sbit BIN = P1^1;
+   8          
+   9          bit IR_DECODE_OK; //标志红外解码完成
+  10          bit IR_OK; //标志接收完成
+  11          uchar IR_DATA[33];  //储存一位引导码，16位用户码和16位键值码
+  12          uchar IR_BYTE[4]; //储存红外数据分离出来的四个字节。读取第三个字节判断 按键
+  13          uint IR_TIME;
+  14          uchar pwm;
+  15          uchar pwm_length = 120; //最大170
+  16          enum STATES {OPEN,OFF};
+  17          enum STATES NOW_STATES = OFF; //默认关闭。
+  18          int getIRDecode();
+  19          
+  20          //定时器初始化。外部中断，串口设置
+  21          void Init(){
+  22   1              EA = 1;
+  23   1              TMOD = 0x02; //八位自动重装模式。
+  24   1              TL0 = 0;
+  25   1              TH0 = 0; //定时器0溢出时间为277.76us。
+  26   1              ET0 = 1; //定时器中断。
+  27   1              TR0 = 1;//定时器启动。
+  28   1              //外部中断0设置
+  29   1              IT0 = 1; //选择跳变沿触发方式，引脚从高电平到低电平有效。
+  30   1              EX0 = 1; //外部中断0允许位。
+  31   1              TMOD |= 0x20;
+  32   1              TH1 = TL1 = 220;
+  33   1              TR1 = 0;
+  34   1              ET1 = 0;
+  35   1              //电机初始化。
+  36   1              AIN = 1;
+  37   1              //BIN = 1;
+  38   1      }
+  39          
+  40          void time0() interrupt 1{
+  41   1              IR_TIME++; //每次中断需要256个机器周期。
+  42   1      }
+  43          
+  44          void time1() interrupt 3{
+  45   1              pwm++;
+  46   1              if(pwm == 255){
+  47   2                      AIN = 1;
+  48   2              }
+  49   1              if(pwm_length == pwm){
+  50   2                      AIN = 0;
+  51   2              }
+  52   1      }
+  53          //接收到红外信号，产生外部中断。
+  54          void getIRData() interrupt 0{
+C51 COMPILER V9.54   IR_MOTOR                                                              04/13/2022 22:48:43 PAGE 2   
+
+  55   1              static uint i;
+  56   1              static bit flag;
+  57   1              if(flag)
+  58   1                      {
+  59   2                      //判断一开始接收到的是否为起始码。是则从数组首开始存。
+  60   2                      if((IR_TIME >= 32)&& (IR_TIME < 53)) //8.8ms-14.5ms
+  61   2                      {
+  62   3                              i = 0;
+  63   3                      }
+  64   2                      IR_DATA[i] = IR_TIME; //把溢出次数储存。
+  65   2                      i++;
+  66   2                      IR_TIME = 0;
+  67   2                      if(33 == i)
+  68   2                      {
+  69   3                              IR_OK = 1;
+  70   3                              i = 0; //已经储存完33位数据。
+  71   3                              flag = 0; //flag置0准备下一次接收信号。
+  72   3                      }
+  73   2              }
+  74   1              else{
+  75   2                      flag = 1;
+  76   2                      IR_TIME = 0;
+  77   2              }
+  78   1      }       
+  79          int getIRDecode(){
+  80   1              uint i ,j , k = 1; //k是数组下标。跳过引导码。
+  81   1              for(i = 0;i<4;i++){
+  82   2                      for(j = 0;j<8;j++){
+  83   3                              if(IR_DATA[k] > 5){
+  84   4                                      //这位数据为1.
+  85   4                                      IR_BYTE[i] |= 0x80;
+  86   4                              }
+  87   3                              if(j < 7)                       
+  88   3                                      IR_BYTE[i] >>= 1;
+  89   3                              k++;
+  90   3                      }
+  91   2              }
+  92   1              return 0;
+  93   1      }       
+  94          
+  95          void IR_Press_Judge(){
+  96   1              switch(IR_BYTE[2]){
+  97   2                      case 0x45: if(NOW_STATES != OPEN) NOW_STATES = OPEN; TR1 = 1;ET1 = 1;break;
+  98   2                      case 0x47: if(NOW_STATES != OFF) NOW_STATES = OFF; TR1 = 0;ET1 = 0;AIN = 0;break;
+  99   2                      case 0x40: if(pwm_length < 160) pwm_length+=10;break;
+ 100   2                      case 0x44: if(pwm_length > 10) pwm_length-=10;break;
+ 101   2              }
+ 102   1      }
+ 103          int main(){
+ 104   1              Init();
+ 105   1              while(1){
+ 106   2                      if(IR_OK){
+ 107   3                              IR_OK = 0;
+ 108   3                              getIRDecode();
+ 109   3                              IR_Press_Judge();
+ 110   3                      }
+ 111   2              }
+ 112   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    336    ----
+C51 COMPILER V9.54   IR_MOTOR                                                              04/13/2022 22:48:43 PAGE 3   
+
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     44       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      3    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
