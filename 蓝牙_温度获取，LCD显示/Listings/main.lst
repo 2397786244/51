@@ -1,0 +1,125 @@
+C51 COMPILER V9.54   MAIN                                                                  04/30/2022 01:39:15 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main.l
+                    -st) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "lcd1602_ds18B20.h"
+   2          #include <reg52.h>
+   3          #include <intrins.h>
+   4          
+   5          //串口的发送(温度发送) 串口的接收(lcd1602内容显示 即：灯已经被打开/关闭,LED流水灯) 
+   6          uint flag = 0;
+   7          
+   8          void BlueTooth_uart() interrupt 4{
+   9   1              if(RI){
+  10   2                      //接收到发送到MCU的命令。
+  11   2                      switch(SBUF){
+  12   3                              case 0x20:flag = 1;SendString("LED OPEN!");break;
+  13   3                              case 0x02:flag = 0;SendString("LED CLOSE!");break;
+  14   3                      }
+  15   2                      RI= 0;
+  16   2              }
+  17   1      }
+  18          
+  19          void timerInit(){
+  20   1              EA = 1;
+  21   1              //定时器1初始化。产生波特率9600 
+  22   1              PCON &= 0x7F;           
+  23   1              SCON = 0x50;                    
+  24   1              TMOD &= 0x0F;           
+  25   1              TMOD |= 0x20;    //设置八位重装 
+  26   1              TL1 = 0xFD;             
+  27   1              TH1 = 0xFD;     //设置初值。
+  28   1              ET1 = 0;                
+  29   1              TR1 = 1;
+  30   1              ES = 1;  //打开串口中断
+  31   1              REN = 1;
+  32   1      }
+  33          
+  34          void UartStringSend(uint dat){
+  35   1              char msg[20] = "Current Temp: ";
+  36   1              char * ptr;
+  37   1              uchar bai;
+  38   1              uchar shi;
+  39   1              uchar ge;
+  40   1              bai = dat / 100;
+  41   1              shi = dat / 10 % 10;
+  42   1              ge = dat % 10;
+  43   1              msg[14] = bai + '0';
+  44   1              msg[15] = shi + '0';
+  45   1              msg[16] = '.';
+  46   1              msg[17] = ge  + '0';
+  47   1              msg[18] = '\0';
+  48   1              ptr = msg;
+  49   1              while(*ptr != '\0'){
+  50   2                      SBUF = *ptr;
+  51   2                      while(!TI);
+  52   2                      TI = 0;
+  53   2                      ptr++;
+  54   2              }
+C51 COMPILER V9.54   MAIN                                                                  04/30/2022 01:39:15 PAGE 2   
+
+  55   1      }
+  56          
+  57          void main(){
+  58   1              uint highT;
+  59   1              uint lowT;
+  60   1              uint cnt = 0;
+  61   1              uint temp;
+  62   1              uint i;
+  63   1              LCD1602Init();
+  64   1              timerInit();
+  65   1              while(1){
+  66   2                      //判断flag 状态，flag = 1时led打开流水灯。      
+  67   2                      if(flag){
+  68   3                              P1 = 0xfe;
+  69   3                              for(i = 0;i<8;i++){
+  70   4                                      P1 = _crol_(P1,1);  //把P1 循环往左移动一位。
+  71   4                                      delay(100);
+  72   4                              }
+  73   3                      }
+  74   2                      else{
+  75   3                              P1 = 0xff; //关闭流水灯。
+  76   3                      }
+  77   2                      //实时温度发送。
+  78   2                      if(2000==cnt){
+  79   3                              //温度转换
+  80   3                              initCmd();  
+  81   3                              oWireWrite(0xcc);  //忽略ROM的操作指令
+  82   3                              oWireWrite(0x44);  //DS18B20的温度转换指令
+  83   3                              
+  84   3                              //温度获取
+  85   3                              initCmd();
+  86   3                              oWireWrite(0xcc);  //忽略ROM指令
+  87   3                              oWireWrite(0xbe);  //读取暂存器。这个时候18B20会开始返回暂存器内的值。
+  88   3                              lowT = readByteFromOWire();
+  89   3                              highT = readByteFromOWire();  //从第0个字节开始读。这里只读前两个字节
+  90   3                              temp = (highT * 256 ) | lowT;
+  91   3                              temp = (temp * 0.0625 + 0.05)*10 ;  //得到温度值,四舍五入保留一位小数
+  92   3                              
+  93   3                              //串口发送当前温度
+  94   3                              UartStringSend(temp);
+  95   3                              cnt = 0;
+  96   3                      }
+  97   2                      cnt++;
+  98   2              }
+  99   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    430    ----
+   CONSTANT SIZE    =     41    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2      28
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

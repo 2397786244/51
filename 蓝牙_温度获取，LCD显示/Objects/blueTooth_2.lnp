@@ -1,0 +1,4 @@
+".\Objects\main.obj",
+".\Objects\lcd1602_ds18B20.obj" 
+TO ".\Objects\blueTooth_2" 
+PRINT(".\Listings\blueTooth_2.m51") RAMSIZE(256) 
